@@ -128,6 +128,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Chess.cpp" />
+    <ClCompile Include="Peon.cpp" />
+    <ClCompile Include="Pieza.cpp" />
+    <ClCompile Include="Tablero.cpp" />
+    <ClCompile Include="Torre.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Peon.h" />
+    <ClInclude Include="Pieza.h" />
+    <ClInclude Include="Tablero.h" />
+    <ClInclude Include="Torre.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
