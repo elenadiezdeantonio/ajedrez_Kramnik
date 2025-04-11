@@ -10,4 +10,4 @@ public:
 	~Peon();
 	void print() const override;
 	void mover(int newFila, int newCol) override;
-};
+};//hola
