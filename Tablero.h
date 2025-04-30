@@ -1,24 +1,16 @@
-#ifndef TABLERO_H
-#define TABLERO_H
-
-#include "Pieza.h"
-#include <vector>
-#include <iostream>
-using namespace std;
-
-class Tablero {
+#pragma once
+#include "pieza.h"
+class Tablero
+{
 private:
-	static const int DIM = 4;
-	//Pieza* tablero[DIM][DIM];
-	vector<vector<Pieza*>> tablero;
-	int fila;
+	static const int filas = 6;
+	static const int columnas = 5;
+	Pieza* casillas[filas][columnas];
 public:
 	Tablero();
 	~Tablero();
-	void onDraw();
-	void onKeyBoardDown();
-	void meterPieza(Pieza* p);
-	void printTablero();
+	void colocarPieza(Pieza* pieza, Posicion pos);
+	Pieza* obtenerPieza(Posicion pos) const;
+	void moverPieza(Posicion origen, Posicion destino);
+	void mostrar()const;
 };
-
-#endif //TABLERO_H

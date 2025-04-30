@@ -132,7 +132,7 @@
     <ClCompile Include="Pieza.cpp" />
     <ClCompile Include="posicion.cpp" />
     <ClCompile Include="rey.cpp" />
-    <ClCompile Include="Tablero.cpp" />
+    <ClCompile Include="tablero.cpp" />
     <ClCompile Include="Torre.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -141,7 +141,7 @@
     <ClInclude Include="Pieza.h" />
     <ClInclude Include="posicion.h" />
     <ClInclude Include="rey.h" />
-    <ClInclude Include="Tablero.h" />
+    <ClInclude Include="tablero.h" />
     <ClInclude Include="Torre.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

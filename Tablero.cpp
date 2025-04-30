@@ -1,43 +1,45 @@
-#include "Pieza.h"
-#include "Tablero.h"
+#include "tablero.h"
 #include <iostream>
-using namespace std;
-
 Tablero::Tablero() {
-	tablero.resize(DIM, vector<Pieza*>(DIM, nullptr));
-}
-
-Tablero::~Tablero() {
-	for (int i = 0; i < DIM; i++) {
-		for (int j = 0; j < DIM; j++) {
-			delete tablero[i][j];
+	for (int fila = 0; fila < filas; ++fila) {
+		for (int col = 0; col < columnas; ++col) {
+			casillas[fila][col] = nullptr;
 		}
 	}
 }
-void Tablero::onDraw() {
-
+Tablero::~Tablero() {
+	for (int fila = 0; fila < filas; ++fila) {
+		for (int col = 0; col < columnas; ++col) {
+			delete casillas[fila][col];
+		}
+	}
 }
-
-void Tablero::onKeyBoardDown() {
-
+void Tablero::colocarPieza(Pieza* pieza, Posicion pos) {
+	casillas[pos.fila][pos.columna] = pieza;
 }
-
-void Tablero::printTablero() {
-	for (int i = 0; i < DIM; i++) {
-		for (int j = 0; j < DIM; j++) {
-			if (tablero[i][j] != nullptr) {
-				tablero[i][j]->print();
+Pieza* Tablero::obtenerPieza(Posicion pos)const {
+	return casillas[pos.fila][pos.columna];
+}
+void Tablero::moverPieza(Posicion origen, Posicion destino) {
+	Pieza* pieza = casillas[origen.fila][origen.columna];
+	if (pieza && pieza->esMovimientoValido(destino, *this)) {
+		delete casillas[destino.fila][destino.columna];
+		casillas[destino.fila][destino.columna] = pieza;
+		casillas[origen.fila][origen.columna] = nullptr;
+		pieza->setPosicion(destino);
+	}
+}
+void Tablero::mostrar()const {
+	for (int fila = filas - 1; fila >= 0; --fila) {
+		for (int col = 0; col < columnas; ++col) {
+			Pieza* pieza = casillas[fila][col];
+			if (pieza) {
+				std::cout << pieza->getSimbolo() << ' ';
 			}
 			else {
-				cout << "*";
+				std::cout << ". ";
 			}
 		}
-		cout << endl;
+		std::cout << "\n";
 	}
-}
-
-void Tablero::meterPieza(Pieza* p) {
-	int f = p->getFila();
-	int c = p->getColumna();
-	tablero[f][c] = p;
 }
