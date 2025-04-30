@@ -1,17 +1,20 @@
 
+#include "tablero.h"
+#include "rey.h"
 #include <iostream>
-#include "Tablero.h"
-#include "Peon.h"
 
 using namespace std;
-int main()
-{
-    Tablero chess;
+int main() {
+    Tablero tablero;
 
-    chess.meterPieza(new Peon(3,0,'b'));
+    // Colocar piezas en el tablero
+    Pieza* reyBlanco = new Rey(Color::BLANCO, Posicion(0, 0));  // Colocamos un rey en la posición (0, 0)
+    tablero.colocarPieza(reyBlanco, Posicion(0, 0));
 
-    chess.printTablero();
-    std::cout << "Hello World!\n";
+    // Mostrar el tablero
+    tablero.mostrar();
 
+    // Espera para que la consola no se cierre de inmediato
+    std::cin.get();
     return 0;
 }
