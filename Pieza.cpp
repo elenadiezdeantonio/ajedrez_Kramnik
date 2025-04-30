@@ -1,22 +1,11 @@
-#include "Pieza.h"
-
-
-Pieza::Pieza() {
-
+#include "pieza.h"
+Pieza::Pieza(Color color, Posicion pos) : color(color), posicion(pos) {}
+Color Pieza::getColor() const {
+	return color;
 }
-
-Pieza::Pieza(int _fila, int _columna, char _color) : fila(_fila), columna(_columna), color(_color) {
-
+Posicion Pieza::getPosicion()const {
+	return posicion;
 }
-
-
-Pieza::~Pieza() {
-
-}
-
-int Pieza::getFila() {
-	return fila;
-}
-int Pieza::getColumna() {
-	return columna;
+void Pieza::setPosicion(Posicion nueva) {
+	posicion = nueva;
 }

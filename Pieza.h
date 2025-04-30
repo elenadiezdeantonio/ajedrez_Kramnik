@@ -1,20 +1,18 @@
-#ifndef PIEZA_H
-#define PIEZA_H
-using namespace std;
-
-class Pieza {
-private:
-	int fila;
-	int columna;
-	char color;
+#pragma once
+#include "color.h"
+#include "posicion.h"
+class Tablero;
+class Pieza
+{
+protected:
+	Color color;
+	Posicion posicion;
 public:
-	Pieza();
-	Pieza(int _fila, int _columna, char _color);
-	virtual ~Pieza();
-	virtual void mover(int newFila, int newCol) = 0;
-	virtual void print() const = 0;
-	int getFila();
-	int getColumna();
+	Pieza(Color color, Posicion pos);
+	virtual ~Pieza() = default;
+	Color getColor()const;
+	Posicion getPosicion()const;
+	void setPosicion(Posicion nueva);
+	virtual char getSimbolo()const = 0;
+	virtual bool esMovimientoValido(Posicion destino, const Tablero& tablero)const = 0;
 };
-
-#endif //PIEZA_H
