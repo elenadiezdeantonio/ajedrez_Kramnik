@@ -131,6 +131,7 @@
     <ClCompile Include="Peon.cpp" />
     <ClCompile Include="Pieza.cpp" />
     <ClCompile Include="posicion.cpp" />
+    <ClCompile Include="reina.cpp" />
     <ClCompile Include="rey.cpp" />
     <ClCompile Include="tablero.cpp" />
     <ClCompile Include="Torre.cpp" />
@@ -140,6 +141,7 @@
     <ClInclude Include="Peon.h" />
     <ClInclude Include="Pieza.h" />
     <ClInclude Include="posicion.h" />
+    <ClInclude Include="reina.h" />
     <ClInclude Include="rey.h" />
     <ClInclude Include="tablero.h" />
     <ClInclude Include="Torre.h" />
