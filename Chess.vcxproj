@@ -130,6 +130,7 @@
     <ClCompile Include="alfil.cpp" />
     <ClCompile Include="caballo.cpp" />
     <ClCompile Include="Chess.cpp" />
+    <ClCompile Include="juego.cpp" />
     <ClCompile Include="Peon.cpp" />
     <ClCompile Include="Pieza.cpp" />
     <ClCompile Include="posicion.cpp" />
@@ -142,6 +143,7 @@
     <ClInclude Include="alfil.h" />
     <ClInclude Include="caballo.h" />
     <ClInclude Include="color.h" />
+    <ClInclude Include="juego.h" />
     <ClInclude Include="Peon.h" />
     <ClInclude Include="Pieza.h" />
     <ClInclude Include="posicion.h" />
