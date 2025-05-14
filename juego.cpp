@@ -113,13 +113,14 @@ bool Juego::estaEnJaque(Color color) {
                 Rey* rey = dynamic_cast<Rey*>(pieza);
                 if (rey) {
                     reyPos = { fila, col };
-                    goto encontrado;
+                    break;
                 }
             }
         }
     }
+    // Si no se encontró el rey, no hay jaque
+    if (reyPos.fila == -1) return false;
 
-encontrado:
     // Verificar si alguna pieza enemiga puede atacar al rey
     for (int fila = 0; fila < 6; ++fila) {
         for (int col = 0; col < 5; ++col) {
@@ -134,3 +135,4 @@ encontrado:
 
     return false;
 }
+
