@@ -32,7 +32,21 @@ void Juego::iniciar() {
 bool Juego::jugarTurno(Posicion origen, Posicion destino) {
     Pieza* pieza = tablero.obtenerPieza(origen);
     if (pieza && pieza->getColor() == turnoActual && pieza->esMovimientoValido(destino, tablero)) {
+        // Simulamos el movimiento
+        Pieza* piezaCapturada = tablero.obtenerPieza(destino);
         tablero.moverPieza(origen, destino);
+
+        // Verificar si después de mover sigo en jaque
+        bool sigoEnJaque = estaEnJaque(turnoActual);
+
+        if (sigoEnJaque) {
+            // Revertimos el movimiento
+            tablero.moverPieza(destino, origen);
+            tablero.colocarPieza(piezaCapturada, destino);
+
+            std::cout << "\nMovimiento invalido: Debes salir del jaque!\n";
+            return false;
+        }
 
         // Verifica si el peón debe coronarse
         Pieza* piezaMovida = tablero.obtenerPieza(destino);
@@ -73,15 +87,13 @@ bool Juego::jugarTurno(Posicion origen, Posicion destino) {
                 std::cout << "¡Peon coronado exitosamente!\n";
             }
         }
-        //Verificacion de jaque
-        if (estaEnJaque(turnoActual)) {
-            std::cout << "Estas en jaque!\n";
-        }
+
         cambiarTurno();
         return true;
     }
     return false;
 }
+
 
 
 
