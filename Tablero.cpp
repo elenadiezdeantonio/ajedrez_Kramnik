@@ -45,3 +45,40 @@ void Tablero::mostrar()const {
 		std::cout << "\n";
 	}
 }
+
+bool Tablero::caminoLibre(Posicion origen, Posicion destino) const {
+	int filaDir, colDir;
+
+	if (destino.fila == origen.fila) {
+		filaDir = 0;
+	}
+	else if (destino.fila > origen.fila) {
+		filaDir = 1;
+	}
+	else {
+		filaDir = -1;
+	}
+
+	if (destino.columna == origen.columna) {
+		colDir = 0;
+	}
+	else if (destino.columna > origen.columna) {
+		colDir = 1;
+	}
+	else {
+		colDir = -1;
+	}
+
+	int fila = origen.fila + filaDir;
+	int col = origen.columna + colDir;
+
+	while (fila != destino.fila || col != destino.columna) {
+		if (casillas[fila][col] != nullptr) {
+			return false; // Hay una pieza en el camino
+		}
+		fila += filaDir;
+		col += colDir;
+	}
+
+	return true; // El camino está libre
+}

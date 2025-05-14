@@ -13,4 +13,5 @@ public:
 	Pieza* obtenerPieza(Posicion pos) const;
 	bool moverPieza(Posicion origen, Posicion destino);
 	void mostrar()const;
+	bool caminoLibre(Posicion origen, Posicion destino) const;
 };

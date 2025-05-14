@@ -1,4 +1,5 @@
 #include "torre.h"
+#include "Tablero.h"
 
 Torre::Torre(Color color, Posicion pos) : Pieza(color, pos) {}
 
@@ -13,6 +14,6 @@ char Torre::getSimbolo() const {
 
 bool Torre::esMovimientoValido(Posicion destino, const Tablero& tablero) const {
     // Movimiento en línea recta: misma fila o misma columna
-    return destino != posicion && (destino.fila == posicion.fila || destino.columna == posicion.columna);
+    return(destino.fila == posicion.fila || destino.columna == posicion.columna) && tablero.caminoLibre(posicion, destino) && destino != posicion;
 
 }
