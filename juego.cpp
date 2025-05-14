@@ -32,6 +32,17 @@ void Juego::iniciar() {
 bool Juego::jugarTurno(Posicion origen, Posicion destino) {
     Pieza* pieza = tablero.obtenerPieza(origen);
     if (pieza && pieza->getColor() == turnoActual && pieza->esMovimientoValido(destino, tablero)) {
+
+        // Prohibir capturar cualquier rey
+        Pieza* piezaDestino = tablero.obtenerPieza(destino);
+        if (piezaDestino) {
+            Rey* reyDestino = dynamic_cast<Rey*>(piezaDestino);
+            if (reyDestino) {
+                std::cout << "\nMovimiento invalido: ¡No puedes capturar un rey!\n";
+                return false;
+            }
+        }
+
         // Simulamos el movimiento
         Pieza* piezaCapturada = tablero.obtenerPieza(destino);
         tablero.moverPieza(origen, destino);
@@ -44,7 +55,7 @@ bool Juego::jugarTurno(Posicion origen, Posicion destino) {
             tablero.moverPieza(destino, origen);
             tablero.colocarPieza(piezaCapturada, destino);
 
-            std::cout << "\nMovimiento invalido: Debes salir del jaque!\n";
+            std::cout << "\nMovimiento invalido: ¡Debes salir del jaque!\n";
             return false;
         }
 
@@ -61,7 +72,7 @@ bool Juego::jugarTurno(Posicion origen, Posicion destino) {
 
             if (destino.fila == filaFinal) {
                 std::cout << "¡Tu peon ha llegado al final del tablero!\n";
-                std::cout << "¿A que pieza deseas coronarlo? (R: Reina, T: Torre, A: Alfil, C: Caballo): ";
+                std::cout << "¿A qué pieza deseas coronarlo? (R: Reina, T: Torre, A: Alfil, C: Caballo): ";
 
                 char opcion;
                 std::cin >> opcion;
@@ -93,6 +104,7 @@ bool Juego::jugarTurno(Posicion origen, Posicion destino) {
     }
     return false;
 }
+
 
 
 
