@@ -3,10 +3,10 @@
 Reina::Reina(Color color, Posicion pos) : Pieza(color, pos) {}
 char Reina::getSimbolo()const {
 	if (color == Color::BLANCO) {
-		return 'R';
+		return 'Q';
 	}
 	else {
-		return 'r';
+		return 'q';
 	}
 }
 bool Reina::esMovimientoValido(Posicion destino, const Tablero& tablero) const {

@@ -127,6 +127,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="alfil.cpp" />
+    <ClCompile Include="caballo.cpp" />
     <ClCompile Include="Chess.cpp" />
     <ClCompile Include="Peon.cpp" />
     <ClCompile Include="Pieza.cpp" />
@@ -137,6 +139,8 @@
     <ClCompile Include="Torre.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="alfil.h" />
+    <ClInclude Include="caballo.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="Peon.h" />
     <ClInclude Include="Pieza.h" />

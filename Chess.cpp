@@ -1,44 +1,42 @@
-#include <iostream>
 #include "tablero.h"
 #include "rey.h"
 #include "reina.h"
-#include "color.h"
+#include "torre.h"
+#include "alfil.h"
+#include "caballo.h"
+#include "peon.h"
+#include <iostream>
 
 int main() {
-    // Crear el tablero de 6x5
     Tablero tablero;
 
-    // Colocar las piezas
-    tablero.colocarPieza(new Rey(Color::NEGRO, Posicion(5, 0)), Posicion(5, 0)); // Rey negro en (5,0)
-    tablero.colocarPieza(new Rey(Color::BLANCO, Posicion(0, 4)), Posicion(0, 4)); // Rey blanco en (0,4)
-    tablero.colocarPieza(new Reina(Color::BLANCO, Posicion(0, 3)), Posicion(0, 3)); // Reina blanca en (0,3)
-    tablero.colocarPieza(new Reina(Color::NEGRO, Posicion(5, 1)), Posicion(5, 1)); // Reina negra en (5,1)
+    // Colocar piezas negras (fila 5)
+    tablero.colocarPieza(new Rey(Color::NEGRO, { 5, 0 }), { 5, 0 });
+    tablero.colocarPieza(new Reina(Color::NEGRO, { 5, 1 }), { 5, 1 });
+    tablero.colocarPieza(new Alfil(Color::NEGRO, { 5, 2 }), { 5, 2 });
+    tablero.colocarPieza(new Caballo(Color::NEGRO, { 5, 3 }), { 5, 3 });
+    tablero.colocarPieza(new Torre(Color::NEGRO, { 5, 4 }), { 5, 4 });
 
-    // Mostrar el tablero inicial
-    std::cout << "Tablero inicial:\n";
+    // Peones negros (fila 4)
+    for (int col = 0; col < 5; ++col) {
+        tablero.colocarPieza(new Peon(Color::NEGRO, { 4, col }), { 4, col });
+    }
+
+    // Peones blancos (fila 2)
+    for (int col = 0; col < 5; ++col) {
+        tablero.colocarPieza(new Peon(Color::BLANCO, { 1, col }), { 1, col });
+    }
+
+    // Colocar piezas blancas (fila 1)
+    tablero.colocarPieza(new Torre(Color::BLANCO, { 0, 0 }), { 0, 0 });
+    tablero.colocarPieza(new Caballo(Color::BLANCO, { 0, 1 }), { 0, 1 });
+    tablero.colocarPieza(new Alfil(Color::BLANCO, { 0, 2 }), { 0, 2 });
+    tablero.colocarPieza(new Reina(Color::BLANCO, { 0, 3 }), { 0, 3 });
+    tablero.colocarPieza(new Rey(Color::BLANCO, { 0, 4 }), { 0, 4 });
+
     tablero.mostrar();
-
-    // Mover el rey NEGRO de (5, 0) a (4, 1)
-    std::cout << "\nMover el rey negro de (5,0) a (4,1):\n";
-    tablero.moverPieza(Posicion(5, 0), Posicion(4, 1));
-    tablero.mostrar();
-
-    // Mover el rey BLANCO de (0, 4) a (1, 4)
-    std::cout << "\nMover el rey blanco de (0,4) a (1,4):\n";
-    tablero.moverPieza(Posicion(0, 4), Posicion(1, 4));
-    tablero.mostrar();
-
-    // Mover la reina BLANCA de (0, 3) a (3, 0)
-    std::cout << "\nMover la reina blanca de (0,3) a (3,0):\n";
-    tablero.moverPieza(Posicion(0, 3), Posicion(3, 0));
-    tablero.mostrar();
-
-    // Mover la reina NEGRA de (5, 1) a (0, 1)
-    std::cout << "\nMover la reina negra de (5,1) a (0,1):\n";
-    tablero.moverPieza(Posicion(5, 1), Posicion(0, 1));
-    tablero.mostrar();
-
     return 0;
 }
+
 
 
