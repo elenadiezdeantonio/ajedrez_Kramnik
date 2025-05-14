@@ -45,14 +45,14 @@ bool Juego::jugarTurno(Posicion origen, Posicion destino) {
 
         // Simulamos el movimiento
         Pieza* piezaCapturada = tablero.obtenerPieza(destino);
-        tablero.moverPieza(origen, destino);
+        tablero.moverPiezaSimulacion(origen, destino);
 
         // Verificar si después de mover sigo en jaque
         bool sigoEnJaque = estaEnJaque(turnoActual);
 
         if (sigoEnJaque) {
             // Revertimos el movimiento
-            tablero.moverPieza(destino, origen);
+            tablero.moverPiezaSimulacion(destino, origen);
             tablero.colocarPieza(piezaCapturada, destino);
 
             std::cout << "\nMovimiento invalido: ¡Debes salir del jaque!\n";
@@ -183,12 +183,12 @@ bool Juego::esJaqueMate(Color color) {
 
                             // Simular el movimiento
                             Pieza* piezaCapturada = tablero.obtenerPieza(destino);
-                            tablero.moverPieza(origen, destino);
+                            tablero.moverPiezaSimulacion(origen, destino);
 
                             bool sigueEnJaque = estaEnJaque(color);
 
                             // Revertir el movimiento
-                            tablero.moverPieza(destino, origen);
+                            tablero.moverPiezaSimulacion(destino, origen);
                             tablero.colocarPieza(piezaCapturada, destino);
 
                             if (!sigueEnJaque) {

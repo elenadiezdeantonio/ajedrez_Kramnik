@@ -8,11 +8,20 @@ int main() {
     while (true) {
         juego.mostrarTablero();
 
-        //Verificacion de jaque
+        // Verificación de jaque
         if (juego.estaEnJaque(juego.obtenerTurnoActual())) {
             std::cout << "El jugador "
                 << (juego.obtenerTurnoActual() == Color::BLANCO ? "blanco" : "negro")
-                << " esta en jaque!\n";
+                << " está en jaque!\n";
+
+            // Verificación de jaque mate
+            if (juego.esJaqueMate(juego.obtenerTurnoActual())) {
+                std::cout << "\n¡JAQUE MATE!\n";
+                std::cout << "El jugador "
+                    << (juego.obtenerTurnoActual() == Color::BLANCO ? "negro" : "blanco")
+                    << " gana la partida.\n";
+                break; // Terminar el juego
+            }
         }
 
         int oFila, oCol, dFila, dCol;
@@ -32,6 +41,7 @@ int main() {
 
     return 0;
 }
+
 
 
 

@@ -20,17 +20,7 @@ void Tablero::colocarPieza(Pieza* pieza, Posicion pos) {
 Pieza* Tablero::obtenerPieza(Posicion pos)const {
 	return casillas[pos.fila][pos.columna];
 }
-bool Tablero::moverPieza(Posicion origen, Posicion destino) {
-	Pieza* pieza = casillas[origen.fila][origen.columna];
-	if (pieza && pieza->esMovimientoValido(destino, *this)) {
-		delete casillas[destino.fila][destino.columna];
-		casillas[destino.fila][destino.columna] = pieza;
-		casillas[origen.fila][origen.columna] = nullptr;
-		pieza->setPosicion(destino);
-		return true;
-	}
-	return false;
-}
+
 void Tablero::mostrar()const {
 	for (int fila = filas - 1; fila >= 0; --fila) {
 		for (int col = 0; col < columnas; ++col) {
@@ -45,7 +35,6 @@ void Tablero::mostrar()const {
 		std::cout << "\n";
 	}
 }
-
 bool Tablero::caminoLibre(Posicion origen, Posicion destino) const {
 	int filaDir, colDir;
 
@@ -81,4 +70,15 @@ bool Tablero::caminoLibre(Posicion origen, Posicion destino) const {
 	}
 
 	return true; // El camino está libre
+}
+
+bool Tablero::moverPiezaSimulacion(Posicion origen, Posicion destino) {
+	Pieza* pieza = casillas[origen.fila][origen.columna];
+	if (pieza) {
+		casillas[destino.fila][destino.columna] = pieza;
+		casillas[origen.fila][origen.columna] = nullptr;
+		pieza->setPosicion(destino);
+		return true;
+	}
+	return false;
 }

@@ -11,7 +11,7 @@ public:
 	~Tablero();
 	void colocarPieza(Pieza* pieza, Posicion pos);
 	Pieza* obtenerPieza(Posicion pos) const;
-	bool moverPieza(Posicion origen, Posicion destino);
+	bool moverPiezaSimulacion(Posicion origen, Posicion destino);
 	void mostrar()const;
 	bool caminoLibre(Posicion origen, Posicion destino) const;
 };
