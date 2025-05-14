@@ -46,8 +46,8 @@ bool Juego::jugarTurno(Posicion origen, Posicion destino) {
             }
 
             if (destino.fila == filaFinal) {
-                std::cout << "¡Tu peón ha llegado al final del tablero!\n";
-                std::cout << "¿A qué pieza deseas coronarlo? (R: Reina, T: Torre, A: Alfil, C: Caballo): ";
+                std::cout << "¡Tu peon ha llegado al final del tablero!\n";
+                std::cout << "¿A que pieza deseas coronarlo? (R: Reina, T: Torre, A: Alfil, C: Caballo): ";
 
                 char opcion;
                 std::cin >> opcion;
@@ -70,10 +70,13 @@ bool Juego::jugarTurno(Posicion origen, Posicion destino) {
                     break;
                 }
 
-                std::cout << "¡Peón coronado exitosamente!\n";
+                std::cout << "¡Peon coronado exitosamente!\n";
             }
         }
-
+        //Verificacion de jaque
+        if (estaEnJaque(turnoActual)) {
+            std::cout << "Estas en jaque!\n";
+        }
         cambiarTurno();
         return true;
     }
@@ -99,3 +102,35 @@ void Juego::cambiarTurno() {
     }
 }
 
+bool Juego::estaEnJaque(Color color) {
+    Posicion reyPos;
+
+    // Buscar al rey del color especificado
+    for (int fila = 0; fila < 6; ++fila) {
+        for (int col = 0; col < 5; ++col) {
+            Pieza* pieza = tablero.obtenerPieza({ fila, col });
+            if (pieza && pieza->getColor() == color) {
+                Rey* rey = dynamic_cast<Rey*>(pieza);
+                if (rey) {
+                    reyPos = { fila, col };
+                    goto encontrado;
+                }
+            }
+        }
+    }
+
+encontrado:
+    // Verificar si alguna pieza enemiga puede atacar al rey
+    for (int fila = 0; fila < 6; ++fila) {
+        for (int col = 0; col < 5; ++col) {
+            Pieza* atacante = tablero.obtenerPieza({ fila, col });
+            if (atacante && atacante->getColor() != color) {
+                if (atacante->esMovimientoValido(reyPos, tablero)) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}

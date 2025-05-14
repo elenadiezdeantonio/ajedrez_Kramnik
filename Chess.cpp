@@ -8,6 +8,13 @@ int main() {
     while (true) {
         juego.mostrarTablero();
 
+        //Verificacion de jaque
+        if (juego.estaEnJaque(juego.obtenerTurnoActual())) {
+            std::cout << "El jugador "
+                << (juego.obtenerTurnoActual() == Color::BLANCO ? "blanco" : "negro")
+                << " esta en jaque!\n";
+        }
+
         int oFila, oCol, dFila, dCol;
         std::cout << "\nTurno de " << (juego.obtenerTurnoActual() == Color::BLANCO ? "blanco" : "negro") << "\n";
         std::cout << "Ingresa origen (fila columna): ";
@@ -25,6 +32,7 @@ int main() {
 
     return 0;
 }
+
 
 
 

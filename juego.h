@@ -14,6 +14,8 @@ public:
     void mostrarTablero() const;
     Color obtenerTurnoActual() const;
     void cambiarTurno();
+    bool estaEnJaque(Color color);
+
 };
 
 
