@@ -160,3 +160,50 @@ bool Juego::estaEnJaque(Color color) {
     return false;
 }
 
+bool Juego::esJaqueMate(Color color) {
+    // Para cada pieza del color dado
+    for (int fila = 0; fila < 6; ++fila) {
+        for (int col = 0; col < 5; ++col) {
+            Posicion origen(fila, col);
+            Pieza* pieza = tablero.obtenerPieza(origen);
+            if (pieza && pieza->getColor() == color) {
+                // Intentamos moverla a todas las posiciones posibles
+                for (int f2 = 0; f2 < 6; ++f2) {
+                    for (int c2 = 0; c2 < 5; ++c2) {
+                        Posicion destino(f2, c2);
+
+                        // Verifica si sería un movimiento válido
+                        Pieza* piezaDestino = tablero.obtenerPieza(destino);
+                        if (pieza->esMovimientoValido(destino, tablero)) {
+                            // Prohibimos capturar reyes
+                            Rey* reyDestino = dynamic_cast<Rey*>(piezaDestino);
+                            if (reyDestino) {
+                                continue;
+                            }
+
+                            // Simular el movimiento
+                            Pieza* piezaCapturada = tablero.obtenerPieza(destino);
+                            tablero.moverPieza(origen, destino);
+
+                            bool sigueEnJaque = estaEnJaque(color);
+
+                            // Revertir el movimiento
+                            tablero.moverPieza(destino, origen);
+                            tablero.colocarPieza(piezaCapturada, destino);
+
+                            if (!sigueEnJaque) {
+                                // Encontramos un movimiento que evita el jaque, no es jaque mate
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // Si no hay forma de salir del jaque
+    return true;
+}
+
+
+

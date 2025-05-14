@@ -15,6 +15,7 @@ public:
     Color obtenerTurnoActual() const;
     void cambiarTurno();
     bool estaEnJaque(Color color);
+    bool esJaqueMate(Color color);
 
 };
 

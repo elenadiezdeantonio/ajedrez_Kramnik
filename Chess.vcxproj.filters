@@ -45,6 +45,9 @@
     <ClCompile Include="alfil.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
+    <ClCompile Include="juego.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Torre.h">
@@ -75,6 +78,9 @@
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
     <ClInclude Include="alfil.h">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="juego.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>
