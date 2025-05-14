@@ -33,11 +33,54 @@ bool Juego::jugarTurno(Posicion origen, Posicion destino) {
     Pieza* pieza = tablero.obtenerPieza(origen);
     if (pieza && pieza->getColor() == turnoActual && pieza->esMovimientoValido(destino, tablero)) {
         tablero.moverPieza(origen, destino);
+
+        // Verifica si el peón debe coronarse
+        Pieza* piezaMovida = tablero.obtenerPieza(destino);
+        if (piezaMovida && dynamic_cast<Peon*>(piezaMovida)) {
+            int filaFinal;
+            if (piezaMovida->getColor() == Color::BLANCO) {
+                filaFinal = 5;
+            }
+            else {
+                filaFinal = 0;
+            }
+
+            if (destino.fila == filaFinal) {
+                std::cout << "¡Tu peón ha llegado al final del tablero!\n";
+                std::cout << "¿A qué pieza deseas coronarlo? (R: Reina, T: Torre, A: Alfil, C: Caballo): ";
+
+                char opcion;
+                std::cin >> opcion;
+                opcion = std::toupper(opcion); // Por si meten minúsculas
+
+                delete piezaMovida;
+
+                switch (opcion) {
+                case 'T':
+                    tablero.colocarPieza(new Torre(turnoActual, destino), destino);
+                    break;
+                case 'A':
+                    tablero.colocarPieza(new Alfil(turnoActual, destino), destino);
+                    break;
+                case 'C':
+                    tablero.colocarPieza(new Caballo(turnoActual, destino), destino);
+                    break;
+                default:
+                    tablero.colocarPieza(new Reina(turnoActual, destino), destino);
+                    break;
+                }
+
+                std::cout << "¡Peón coronado exitosamente!\n";
+            }
+        }
+
         cambiarTurno();
         return true;
     }
     return false;
 }
+
+
 
 void Juego::mostrarTablero() const {
     tablero.mostrar();
