@@ -201,9 +201,58 @@ bool Juego::esJaqueMate(Color color) {
             }
         }
     }
+    //Si esta ahogado no hay jaque mate
+    bool sigueAhogado = estaAhogado(color);
+    if (sigueAhogado) {
+        return false;
+    }
     // Si no hay forma de salir del jaque
     return true;
 }
+
+
+bool Juego::estaAhogado(Color color) {
+    if (estaEnJaque(color)) {
+        return false; // Si está en jaque, no es ahogado
+    }
+
+    // Buscar si existe al menos un movimiento legal
+    for (int fila = 0; fila < 6; ++fila) {
+        for (int col = 0; col < 5; ++col) {
+            Posicion origen(fila, col);
+            Pieza* pieza = tablero.obtenerPieza(origen);
+            if (pieza && pieza->getColor() == color) {
+                for (int f2 = 0; f2 < 6; ++f2) {
+                    for (int c2 = 0; c2 < 5; ++c2) {
+                        Posicion destino(f2, c2);
+                        Pieza* piezaDestino = tablero.obtenerPieza(destino);
+
+                        // Prohibimos capturar reyes
+                        Rey* reyDestino = dynamic_cast<Rey*>(piezaDestino);
+                        if (reyDestino) continue;
+
+                        if (pieza->esMovimientoValido(destino, tablero)) {
+                            // Simular movimiento
+                            Pieza* capturada = tablero.obtenerPieza(destino);
+                            tablero.moverPiezaSimulacion(origen, destino);
+                            bool sigueEnJaque = estaEnJaque(color);
+                            tablero.moverPiezaSimulacion(destino, origen);
+                            tablero.colocarPieza(capturada, destino);
+
+                            if (!sigueEnJaque) {
+                                return false; // Hay un movimiento legal
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return true; // No hay movimientos legales -> ahogado
+}
+
+
 
 
 
