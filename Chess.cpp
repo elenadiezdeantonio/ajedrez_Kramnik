@@ -13,15 +13,27 @@ int main() {
             std::cout << "El jugador "
                 << (juego.obtenerTurnoActual() == Color::BLANCO ? "blanco" : "negro")
                 << " está en jaque!\n";
+        }
 
-            // Verificación de jaque mate
-            if (juego.esJaqueMate(juego.obtenerTurnoActual())) {
-                std::cout << "\n¡JAQUE MATE!\n";
-                std::cout << "El jugador "
-                    << (juego.obtenerTurnoActual() == Color::BLANCO ? "negro" : "blanco")
-                    << " gana la partida.\n";
-                break; // Terminar el juego
-            }
+        // Verificación de jaque mate
+        if (juego.esJaqueMate(juego.obtenerTurnoActual())) {
+            std::cout << "\nJAQUE MATE!\n";
+            std::cout << "El jugador "
+                << (juego.obtenerTurnoActual() == Color::BLANCO ? "negro" : "blanco")
+                << " gana la partida.\n";
+            break; // Terminar el juego
+        }
+
+        // Detectar ahogado
+        if (juego.estaAhogado(juego.obtenerTurnoActual())) {
+            std::cout << "¡Tablas por ahogado!\n";
+            break;
+        }
+
+        // Verificación de empate por material insuficiente
+        if (!juego.tieneMaterialSuficiente()) {
+            std::cout << "Empate por material insuficiente.\n";
+            break;
         }
 
         int oFila, oCol, dFila, dCol;
@@ -41,6 +53,7 @@ int main() {
 
     return 0;
 }
+
 
 
 

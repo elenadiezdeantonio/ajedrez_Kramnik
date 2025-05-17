@@ -251,6 +251,49 @@ bool Juego::estaAhogado(Color color) {
 
     return true; // No hay movimientos legales -> ahogado
 }
+bool Juego::tieneMaterialSuficiente() {
+    int reyes = 0;
+    int alfiles = 0;
+    int caballos = 0;
+    int torres = 0;
+    int reinas = 0;
+    int peones = 0;
+
+    // Contamos todas las piezas en el tablero sin tener en cuenta el color
+    for (int fila = 0; fila < 6; ++fila) {
+        for (int col = 0; col < 5; ++col) {
+            Posicion pos(fila, col);
+            Pieza* pieza = tablero.obtenerPieza(pos);
+            if (pieza) {
+                if (dynamic_cast<Rey*>(pieza)) {
+                    reyes++;
+                }
+                else if (dynamic_cast<Alfil*>(pieza)) {
+                    alfiles++;
+                }
+                else if (dynamic_cast<Caballo*>(pieza)) {
+                    caballos++;
+                }
+                else if (dynamic_cast<Torre*>(pieza)) {
+                    torres++;
+                }
+                else if (dynamic_cast<Reina*>(pieza)) {
+                    reinas++;
+                }
+                else if (dynamic_cast<Peon*>(pieza)) {
+                    peones++;
+                }
+            }
+        }
+    }
+
+    if (reinas > 0 || torres > 0 || peones > 0) {
+        return true;
+    }
+    else if (reyes == 2 && (alfiles <= 1 || caballos <= 1) && alfiles != caballos) {
+        return false;
+    }
+}
 
 
 

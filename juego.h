@@ -17,6 +17,7 @@ public:
     bool estaEnJaque(Color color);
     bool esJaqueMate(Color color);
     bool estaAhogado(Color color);
+    bool tieneMaterialSuficiente();
 
 };
 
