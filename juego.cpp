@@ -59,6 +59,19 @@ bool Juego::jugarTurno(Posicion origen, Posicion destino) {
             return false;
         }
 
+        // Movimiento válido confirmado: ahora mover pieza real
+        tablero.moverPiezaSimulacion(origen, destino);
+
+        // Actualizamos contador de movimientos sin captura ni movimiento de peón
+        bool muevePeon = dynamic_cast<Peon*>(pieza) != nullptr;
+        bool capturaPieza = piezaDestino != nullptr;
+        if (muevePeon || capturaPieza) {
+            movimientosSinCapturaNiPeon = 0; // Reiniciar contador
+        }
+        else {
+            movimientosSinCapturaNiPeon++;
+        }
+
         // Verifica si el peón debe coronarse
         Pieza* piezaMovida = tablero.obtenerPieza(destino);
         if (piezaMovida && dynamic_cast<Peon*>(piezaMovida)) {
@@ -100,6 +113,8 @@ bool Juego::jugarTurno(Posicion origen, Posicion destino) {
         }
 
         cambiarTurno();
+
+
         return true;
     }
     return false;
@@ -294,6 +309,7 @@ bool Juego::tieneMaterialSuficiente() {
         return false;
     }
 }
+
 
 
 

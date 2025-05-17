@@ -36,6 +36,20 @@ int main() {
             break;
         }
 
+        // Verificación de regla de los 50 movimientos
+        if (juego.getmovimientosSinCapturaNiPeon() >= 100) {
+            char respuesta;
+            std::cout << "Se han completado 50 movimientos por bando sin captura ni movimiento de peon.\n";
+            std::cout << "¿Deseas reclamar tablas? (s/n): ";
+            std::cin >> respuesta;
+
+            if (respuesta == 's' || respuesta == 'S') {
+                std::cout << "¡Tablas por regla de los 50 movimientos!\n";
+                break;
+            }
+            // Si responde 'n' o cualquier otra cosa, simplemente sigue la partida
+        }
+
         int oFila, oCol, dFila, dCol;
         std::cout << "\nTurno de " << (juego.obtenerTurnoActual() == Color::BLANCO ? "blanco" : "negro") << "\n";
         std::cout << "Ingresa origen (fila columna): ";
@@ -53,6 +67,7 @@ int main() {
 
     return 0;
 }
+
 
 
 

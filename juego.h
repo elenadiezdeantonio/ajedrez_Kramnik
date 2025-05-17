@@ -6,7 +6,7 @@ class Juego {
 private:
     Tablero tablero;
     Color turnoActual;
-
+    int movimientosSinCapturaNiPeon = 0;
 public:
     Juego();
     void iniciar();
@@ -18,7 +18,8 @@ public:
     bool esJaqueMate(Color color);
     bool estaAhogado(Color color);
     bool tieneMaterialSuficiente();
-
+    int getmovimientosSinCapturaNiPeon() const { return movimientosSinCapturaNiPeon; }
 };
+
 
 
