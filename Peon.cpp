@@ -30,3 +30,6 @@ bool Peon::esMovimientoValido(Posicion destino, const Tablero& tablero) const {
 
     return false;
 }
+int Peon::getValor() const {
+    return 1;
+}

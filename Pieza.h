@@ -15,4 +15,5 @@ public:
 	void setPosicion(Posicion nueva);
 	virtual char getSimbolo()const = 0;
 	virtual bool esMovimientoValido(Posicion destino, const Tablero& tablero)const = 0;
+	virtual int getValor() const = 0;
 };

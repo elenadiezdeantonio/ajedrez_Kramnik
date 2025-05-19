@@ -426,6 +426,97 @@ bool Juego::jugarTurnoBotNoob() {
     return true;
 }
 
+int Juego::evaluarMovimiento(const Posicion& origen, const Posicion& destino) {
+    Pieza* pieza = tablero.obtenerPieza(origen);
+    Pieza* objetivo = tablero.obtenerPieza(destino);
+    int puntuacion = 0;
+
+    if (objetivo) {
+        if (objetivo->getColor() == turnoActual) {
+            puntuacion -= objetivo->getValor(); // castiga comerse piezas propias
+        }
+        else {
+            puntuacion += objetivo->getValor(); // premia capturar enemigas
+        }
+    }
+
+    // Simula el movimiento
+    tablero.moverPiezaSimulacion(origen, destino);
+    if (!estaEnJaque(turnoActual)) {
+        puntuacion += 10; // bonus por seguridad del rey
+    }
+    else {
+        puntuacion -= 50; // penalización si deja al rey en jaque
+    }
+    tablero.moverPiezaSimulacion(destino, origen);
+    tablero.colocarPieza(objetivo, destino);
+
+    return puntuacion;
+}
+
+bool Juego::jugarTurnoBotMid() {
+    std::srand(std::time(nullptr));
+    std::vector<std::pair<Posicion, Posicion>> mejoresMovimientos;
+    int mejorPuntaje = -100000;
+
+    for (int fila = 0; fila < 6; ++fila) {
+        for (int col = 0; col < 5; ++col) {
+            Posicion origen(fila, col);
+            Pieza* pieza = tablero.obtenerPieza(origen);
+            if (pieza && pieza->getColor() == turnoActual) {
+                for (int f = 0; f < 6; ++f) {
+                    for (int c = 0; c < 5; ++c) {
+                        Posicion destino(f, c);
+                        if (pieza->esMovimientoValido(destino, tablero)) {
+                            Pieza* objetivo = tablero.obtenerPieza(destino);
+                            if (objetivo && dynamic_cast<Rey*>(objetivo)) continue;
+
+                            int score = evaluarMovimiento(origen, destino);
+
+                            if (score > mejorPuntaje) {
+                                mejoresMovimientos.clear();
+                                mejoresMovimientos.emplace_back(origen, destino);
+                                mejorPuntaje = score;
+                            }
+                            else if (score == mejorPuntaje) {
+                                mejoresMovimientos.emplace_back(origen, destino);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (mejoresMovimientos.empty()) {
+        std::cout << "El bot no tiene movimientos legales disponibles.\n";
+        return false;
+    }
+
+    // Elegimos uno al azar
+    int idx = std::rand() % mejoresMovimientos.size();
+    Posicion origen = mejoresMovimientos[idx].first;
+    Posicion destino = mejoresMovimientos[idx].second;
+
+    Pieza* pieza = tablero.obtenerPieza(origen);
+    Pieza* piezaCapturada = tablero.obtenerPieza(destino);
+
+    tablero.moverPiezaSimulacion(origen, destino);
+
+    bool muevePeon = dynamic_cast<Peon*>(pieza) != nullptr;
+    bool capturaPieza = piezaCapturada != nullptr;
+    if (muevePeon || capturaPieza) {
+        movimientosSinCapturaNiPeon = 0;
+    }
+    else {
+        movimientosSinCapturaNiPeon++;
+    }
+
+    cambiarTurno();
+    registrarEstadoTablero();
+
+    return true;
+}
 
 
 

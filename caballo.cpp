@@ -18,3 +18,6 @@ bool Caballo::esMovimientoValido(Posicion destino, const Tablero& tablero) const
     return destino != posicion && ((dx == 2 && dy == 1) || (dx == 1 && dy == 2));
 
 }
+int Caballo::getValor() const {
+    return 3;
+}

@@ -6,7 +6,6 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
-
 class Juego {
 private:
     Tablero tablero;
@@ -19,6 +18,7 @@ public:
     Juego();
     bool jugarTurno(Posicion origen, Posicion destino);
     bool jugarTurnoBotNoob();  // Ejecuta un turno automático para el bot noob (jugador negro)
+    bool jugarTurnoBotMid();  // Ejecuta un turno automático para el bot mid (jugador negro)
     void mostrarTablero() const;
     Color obtenerTurnoActual() const;
     void cambiarTurno();
@@ -31,6 +31,8 @@ public:
     bool hayTripleRepeticion() const;
     void iniciar5x6();
     void iniciarPetty();
+    int evaluarMovimiento(const Posicion& origen, const Posicion& destino);
 };
+
 
 

@@ -19,3 +19,6 @@ bool Alfil::esMovimientoValido(Posicion destino, const Tablero& tablero) const {
     return (destino != posicion) && (df == dc) && tablero.caminoLibre(posicion, destino);
 
 }
+int Alfil::getValor() const {
+    return 3;
+}

@@ -17,3 +17,6 @@ bool Torre::esMovimientoValido(Posicion destino, const Tablero& tablero) const {
     return(destino.fila == posicion.fila || destino.columna == posicion.columna) && tablero.caminoLibre(posicion, destino) && destino != posicion;
 
 }
+int Torre::getValor() const {
+    return 5;
+}

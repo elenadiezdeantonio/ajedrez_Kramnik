@@ -4,7 +4,7 @@
 int main() {
     Juego juego;
     bool vsMaquina = false;
-    int tipoJuego, modo;
+    int tipoJuego, modo, dificultadBot = 1;
 
     std::cout << "Selecciona tipo de juego:\n";
     std::cout << "1. Hombre vs Hombre\n";
@@ -12,6 +12,14 @@ int main() {
     std::cout << "Opcion: ";
     std::cin >> tipoJuego;
     vsMaquina = (tipoJuego == 2);
+
+    if (vsMaquina) {
+        std::cout << "Selecciona dificultad del bot:\n";
+        std::cout << "1. Facil\n";
+        std::cout << "2. Dificil\n";
+        std::cout << "Opcion: ";
+        std::cin >> dificultadBot;
+    }
 
     std::cout << "Elige modo de juego:\n";
     std::cout << "1. Modo 5x6 en esquinas opuestas\n";
@@ -81,8 +89,16 @@ int main() {
 
         if (vsMaquina && juego.obtenerTurnoActual() == Color::NEGRO) {
             std::cout << "\nTurno de la máquina (negro):\n";
-            if (!juego.jugarTurnoBotNoob()) {
-                std::cout << "Movimiento inválido del bot.\n";
+            bool exito = false;
+            if (dificultadBot == 1) {
+                exito = juego.jugarTurnoBotNoob();
+            }
+            else if (dificultadBot == 2) {
+                exito = juego.jugarTurnoBotMid();
+            }
+
+            if (!exito) {
+                std::cout << "Movimiento invalido del bot.\n";
             }
         }
         else {
@@ -104,6 +120,7 @@ int main() {
 
     return 0;
 }
+
 
 
 
