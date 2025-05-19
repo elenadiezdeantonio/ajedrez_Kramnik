@@ -113,12 +113,13 @@ bool Juego::jugarTurno(Posicion origen, Posicion destino) {
         }
 
         cambiarTurno();
-
+        registrarEstadoTablero();
 
         return true;
     }
     return false;
 }
+
 
 
 
@@ -309,6 +310,39 @@ bool Juego::tieneMaterialSuficiente() {
         return false;
     }
 }
+
+std::string Juego::serializarTablero() const {
+    std::string estado;
+    for (int fila = 0; fila < 6; ++fila) {
+        for (int col = 0; col < 5; ++col) {
+            Pieza* pieza = tablero.obtenerPieza(Posicion(fila, col));
+            if (pieza) {
+                estado += pieza->getSimbolo();
+            }
+            else {
+                estado += '.';
+            }
+        }
+    }
+    estado += (obtenerTurnoActual() == Color::BLANCO ? 'B' : 'N'); // Añadimos turno actual para diferenciar
+    return estado;
+}
+
+void Juego::registrarEstadoTablero() {
+    std::string estado = serializarTablero();
+    historialTableros[estado]++;
+}
+
+bool Juego::hayTripleRepeticion() const {
+    for (const auto& par : historialTableros) {
+        if (par.second >= 3) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 
 
 

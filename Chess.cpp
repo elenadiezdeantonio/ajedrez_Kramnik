@@ -37,7 +37,7 @@ int main() {
         }
 
         // Verificación de regla de los 50 movimientos
-        if (juego.getmovimientosSinCapturaNiPeon() >= 100) {
+        if (juego.getMovimientosSinCapturaNiPeon() >= 100) {
             char respuesta;
             std::cout << "Se han completado 50 movimientos por bando sin captura ni movimiento de peon.\n";
             std::cout << "¿Deseas reclamar tablas? (s/n): ";
@@ -48,6 +48,19 @@ int main() {
                 break;
             }
             // Si responde 'n' o cualquier otra cosa, simplemente sigue la partida
+        }
+
+        // Verificación de triple repetición
+        if (juego.hayTripleRepeticion()) {
+            char respuesta;
+            std::cout << "Se ha producido una triple repeticion de la posicion.\n";
+            std::cout << "¿Deseas reclamar tablas? (s/n): ";
+            std::cin >> respuesta;
+
+            if (respuesta == 's' || respuesta == 'S') {
+                std::cout << "¡Tablas por triple repetición!\n";
+                break;
+            }
         }
 
         int oFila, oCol, dFila, dCol;
