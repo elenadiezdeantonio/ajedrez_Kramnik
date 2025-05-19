@@ -1,9 +1,22 @@
+
 #include "juego.h"
 #include <iostream>
 
 int main() {
     Juego juego;
-    juego.iniciar(); // Coloca todas las piezas
+    int modo;
+    std::cout << "Elige modo de juego:\n";
+    std::cout << "1. Modo 5x6 en esquinas opuestas\n";
+    std::cout << "2. Modo Petty\n";
+    std::cout << "Opcion: ";
+    std::cin >> modo;
+
+    if (modo == 1) {
+        juego.iniciar5x6();
+    }
+    else if (modo == 2) {
+        juego.iniciarPetty();
+    }
 
     while (true) {
         juego.mostrarTablero();
@@ -80,6 +93,7 @@ int main() {
 
     return 0;
 }
+
 
 
 
