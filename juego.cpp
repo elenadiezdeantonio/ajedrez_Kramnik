@@ -141,11 +141,6 @@ bool Juego::jugarTurno(Posicion origen, Posicion destino) {
     return false;
 }
 
-
-
-
-
-
 void Juego::mostrarTablero() const {
     tablero.mostrar();
 }
@@ -361,6 +356,74 @@ bool Juego::hayTripleRepeticion() const {
         }
     }
     return false;
+}
+
+bool Juego::jugarTurnoBotNoob() {
+    std::srand(std::time(nullptr));
+    std::vector<std::pair<Posicion, Posicion>> movimientosValidos;
+
+    // Recorremos el tablero en busca de piezas del bot
+    for (int fila = 0; fila < 6; ++fila) {
+        for (int col = 0; col < 5; ++col) {
+            Posicion origen(fila, col);
+            Pieza* pieza = tablero.obtenerPieza(origen);
+            if (pieza && pieza->getColor() == turnoActual) {
+                // Probar todos los posibles destinos
+                for (int f = 0; f < 6; ++f) {
+                    for (int c = 0; c < 5; ++c) {
+                        Posicion destino(f, c);
+                        if (pieza->esMovimientoValido(destino, tablero)) {
+                            // Verificamos que no se intente capturar un rey
+                            Pieza* piezaDestino = tablero.obtenerPieza(destino);
+                            if (piezaDestino && dynamic_cast<Rey*>(piezaDestino)) {
+                                continue; // no permitimos capturar al rey
+                            }
+
+                            // Simulamos el movimiento
+                            Pieza* capturada = tablero.obtenerPieza(destino);
+                            tablero.moverPiezaSimulacion(origen, destino);
+                            bool enJaque = estaEnJaque(turnoActual);
+                            tablero.moverPiezaSimulacion(destino, origen);
+                            tablero.colocarPieza(capturada, destino);
+
+                            if (!enJaque) {
+                                movimientosValidos.push_back({ origen, destino });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (movimientosValidos.empty()) {
+        std::cout << "El bot no tiene movimientos legales disponibles.\n";
+        return false;
+    }
+
+    // Elegimos uno al azar
+    int idx = std::rand() % movimientosValidos.size();
+    Posicion origen = movimientosValidos[idx].first;
+    Posicion destino = movimientosValidos[idx].second;
+
+    Pieza* pieza = tablero.obtenerPieza(origen);
+    Pieza* piezaCapturada = tablero.obtenerPieza(destino);
+
+    tablero.moverPiezaSimulacion(origen, destino);
+
+    bool muevePeon = dynamic_cast<Peon*>(pieza) != nullptr;
+    bool capturaPieza = piezaCapturada != nullptr;
+    if (muevePeon || capturaPieza) {
+        movimientosSinCapturaNiPeon = 0;
+    }
+    else {
+        movimientosSinCapturaNiPeon++;
+    }
+
+    cambiarTurno();
+    registrarEstadoTablero();
+
+    return true;
 }
 
 

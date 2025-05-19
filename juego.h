@@ -3,6 +3,9 @@
 #include "color.h"
 #include <map>
 #include <string>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
 
 class Juego {
 private:
@@ -15,6 +18,7 @@ private:
 public:
     Juego();
     bool jugarTurno(Posicion origen, Posicion destino);
+    bool jugarTurnoBotNoob();  // Ejecuta un turno automático para el bot noob (jugador negro)
     void mostrarTablero() const;
     Color obtenerTurnoActual() const;
     void cambiarTurno();
@@ -25,9 +29,8 @@ public:
     int getMovimientosSinCapturaNiPeon() const { return movimientosSinCapturaNiPeon; }
     void registrarEstadoTablero();
     bool hayTripleRepeticion() const;
-    void iniciar5x6();       // Modo 1: disposición 5x6 esquinas opuestas
-    void iniciarPetty(); // Modo 2: disposición Petty
-
+    void iniciar5x6();
+    void iniciarPetty();
 };
 
 
