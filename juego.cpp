@@ -420,6 +420,16 @@ bool Juego::jugarTurnoBotNoob() {
         movimientosSinCapturaNiPeon++;
     }
 
+    // Verifica si el peón debe coronarse
+    Pieza* piezaMovida = tablero.obtenerPieza(destino);
+    if (piezaMovida && dynamic_cast<Peon*>(piezaMovida)) {
+        int filaFinal = (piezaMovida->getColor() == Color::BLANCO) ? 5 : 0;
+        if (destino.fila == filaFinal) {
+            delete piezaMovida;
+            tablero.colocarPieza(new Reina(turnoActual, destino), destino); // Por defecto, Reina
+        }
+    }
+
     cambiarTurno();
     registrarEstadoTablero();
 
@@ -440,6 +450,14 @@ int Juego::evaluarMovimiento(const Posicion& origen, const Posicion& destino) {
         }
     }
 
+    // Bonus por coronación
+    if (pieza && dynamic_cast<Peon*>(pieza)) {
+        int filaFinal = (pieza->getColor() == Color::BLANCO) ? 5 : 0;
+        if (destino.fila == filaFinal) {
+            puntuacion += 9; // Valor heurístico de coronar a Reina
+        }
+    }
+
     // Simula el movimiento
     tablero.moverPiezaSimulacion(origen, destino);
     if (!estaEnJaque(turnoActual)) {
@@ -453,6 +471,7 @@ int Juego::evaluarMovimiento(const Posicion& origen, const Posicion& destino) {
 
     return puntuacion;
 }
+
 
 bool Juego::jugarTurnoBotMid() {
     std::srand(std::time(nullptr));
@@ -510,6 +529,16 @@ bool Juego::jugarTurnoBotMid() {
     }
     else {
         movimientosSinCapturaNiPeon++;
+    }
+
+    // Verifica si el peón debe coronarse
+    Pieza* piezaMovida = tablero.obtenerPieza(destino);
+    if (piezaMovida && dynamic_cast<Peon*>(piezaMovida)) {
+        int filaFinal = (piezaMovida->getColor() == Color::BLANCO) ? 5 : 0;
+        if (destino.fila == filaFinal) {
+            delete piezaMovida;
+            tablero.colocarPieza(new Reina(turnoActual, destino), destino); // Por defecto, Reina
+        }
     }
 
     cambiarTurno();
