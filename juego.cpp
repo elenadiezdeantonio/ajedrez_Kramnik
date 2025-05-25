@@ -471,7 +471,9 @@ int Juego::evaluarMovimiento(const Posicion& origen, const Posicion& destino) {
 
     return puntuacion;
 }
-
+Tablero& Juego::obtenerTablero() {
+    return tablero;
+}
 
 bool Juego::jugarTurnoBotMid() {
     std::srand(std::time(nullptr));

@@ -130,11 +130,13 @@
     <ClCompile Include="alfil.cpp" />
     <ClCompile Include="caballo.cpp" />
     <ClCompile Include="Chess.cpp" />
+    <ClCompile Include="interfaz.cpp" />
     <ClCompile Include="juego.cpp" />
     <ClCompile Include="Peon.cpp" />
     <ClCompile Include="Pieza.cpp" />
     <ClCompile Include="posicion.cpp" />
     <ClCompile Include="reina.cpp" />
+    <ClCompile Include="renderizador.cpp" />
     <ClCompile Include="rey.cpp" />
     <ClCompile Include="tablero.cpp" />
     <ClCompile Include="Torre.cpp" />
@@ -143,11 +145,13 @@
     <ClInclude Include="alfil.h" />
     <ClInclude Include="caballo.h" />
     <ClInclude Include="color.h" />
+    <ClInclude Include="interfaz.h" />
     <ClInclude Include="juego.h" />
     <ClInclude Include="Peon.h" />
     <ClInclude Include="Pieza.h" />
     <ClInclude Include="posicion.h" />
     <ClInclude Include="reina.h" />
+    <ClInclude Include="renderizador.h" />
     <ClInclude Include="rey.h" />
     <ClInclude Include="tablero.h" />
     <ClInclude Include="Torre.h" />

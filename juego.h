@@ -32,6 +32,9 @@ public:
     void iniciar5x6();
     void iniciarPetty();
     int evaluarMovimiento(const Posicion& origen, const Posicion& destino);
+    Tablero& obtenerTablero();
+
+
 };
 
 
