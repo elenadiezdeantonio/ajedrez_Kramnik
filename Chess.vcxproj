@@ -145,6 +145,7 @@
     <ClInclude Include="alfil.h" />
     <ClInclude Include="caballo.h" />
     <ClInclude Include="color.h" />
+    <ClInclude Include="estados.h" />
     <ClInclude Include="interfaz.h" />
     <ClInclude Include="juego.h" />
     <ClInclude Include="Peon.h" />

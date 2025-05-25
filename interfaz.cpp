@@ -20,6 +20,15 @@ void InterfazUsuario::displayCallback() {
 void InterfazUsuario::mouseCallback(int button, int state, int x, int y) {
     if (state != GLUT_DOWN) return;
 
+    EstadoApp estado = Renderizador::obtenerEstadoActual();
+
+    if (estado == EstadoApp::MENU_PRINCIPAL) {
+        // Delega el evento de ratón al menú
+        Renderizador::manejarMouse(button, state, x, y);
+        return;
+    }
+
+    // Si estamos en el estado JUEGO, continuar con la lógica del tablero
     int anchoVentana = glutGet(GLUT_WINDOW_WIDTH);
     int altoVentana = glutGet(GLUT_WINDOW_HEIGHT);
 
