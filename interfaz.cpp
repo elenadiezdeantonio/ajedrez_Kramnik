@@ -17,18 +17,18 @@ void InterfazUsuario::displayCallback() {
     Renderizador::dibujar();
 }
 
+
 void InterfazUsuario::mouseCallback(int button, int state, int x, int y) {
     if (state != GLUT_DOWN) return;
 
     EstadoApp estado = Renderizador::obtenerEstadoActual();
 
-    if (estado == EstadoApp::MENU_PRINCIPAL || estado == EstadoApp::SELECCION_MODO) {
-        // Delega el evento de ratón al Renderizador en ambos estados
+    if (estado == EstadoApp::MENU_PRINCIPAL || estado == EstadoApp::SELECCION_MODO || estado == EstadoApp::SELECCION_TIPO_JUEGO) {
         Renderizador::manejarMouse(button, state, x, y);
         return;
     }
 
-    // Si estamos en el estado JUEGO, continuar con la lógica del tablero
+    // Si estamos en el juego
     int anchoVentana = glutGet(GLUT_WINDOW_WIDTH);
     int altoVentana = glutGet(GLUT_WINDOW_HEIGHT);
 
@@ -44,5 +44,14 @@ void InterfazUsuario::mouseCallback(int button, int state, int x, int y) {
         juego->jugarTurno(origen, Posicion(fila, col));
         origen = Posicion(-1, -1);
         glutPostRedisplay();
+
+        // Turno del bot si está activado el modo vs máquina
+        if (tipoVsMaquina) {
+            // Asume que el jugador es blanco, el bot es negro
+            if (juego->obtenerTurnoActual() == Color::NEGRO) {
+                juego->jugarTurnoBotNoob();  // mueve el bot
+                glutPostRedisplay();
+            }
+        }
     }
 }

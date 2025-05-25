@@ -4,6 +4,8 @@
 Tablero* Renderizador::tablero = nullptr;
 Juego* Renderizador::juego = nullptr;
 EstadoApp estadoActual = EstadoApp::MENU_PRINCIPAL;
+ModoJuego modoSeleccionado = ModoJuego::MODO_5x6;
+bool tipoVsMaquina = false;
 
 void Renderizador::establecerJuego(Juego* j) {
     juego = j;
@@ -34,6 +36,10 @@ void Renderizador::dibujar() {
     case EstadoApp::SELECCION_MODO:
         mostrarSeleccionModo();
         break;
+    case EstadoApp::SELECCION_TIPO_JUEGO:
+        mostrarSeleccionTipoJuego();  // Deberás implementar esta función
+        break;
+
     case EstadoApp::JUEGO:
         if (tablero) {
             for (int fila = 0; fila < 6; ++fila)
@@ -114,25 +120,49 @@ void Renderizador::manejarMouse(int boton, int estado, int x, int y) {
     float yOpenGL = (alto - y) * 6.0f / alto;
 
     if (estadoActual == EstadoApp::MENU_PRINCIPAL) {
-        // Botón PLAY (entre (2,2) y (3,2.5))
+        // Botón PLAY
         if (xOpenGL >= 2 && xOpenGL <= 3 && yOpenGL >= 2 && yOpenGL <= 2.5) {
             estadoActual = EstadoApp::SELECCION_MODO;
             glutPostRedisplay();
         }
     }
+
     else if (estadoActual == EstadoApp::SELECCION_MODO) {
-        // Botón Modo 5x6 (entre (1,3) y (4,3.5))
+        // Botón Modo 5x6
         if (xOpenGL >= 1 && xOpenGL <= 4 && yOpenGL >= 3 && yOpenGL <= 3.5) {
-            if (juego) juego->iniciar5x6();
-            estadoActual = EstadoApp::JUEGO;
+            modoSeleccionado = ModoJuego::MODO_5x6;
+            estadoActual = EstadoApp::SELECCION_TIPO_JUEGO;
             glutPostRedisplay();
         }
-        // Botón Modo Petty (entre (1,2) y (4,2.5))
+        // Botón Modo Petty
         else if (xOpenGL >= 1 && xOpenGL <= 4 && yOpenGL >= 2 && yOpenGL <= 2.5) {
-            if (juego) juego->iniciarPetty();
-            estadoActual = EstadoApp::JUEGO;
+            modoSeleccionado = ModoJuego::MODO_PETTY;
+            estadoActual = EstadoApp::SELECCION_TIPO_JUEGO;
             glutPostRedisplay();
         }
+    }
+
+    else if (estadoActual == EstadoApp::SELECCION_TIPO_JUEGO) {
+        // Botón vs Persona
+        if (xOpenGL >= 1 && xOpenGL <= 4 && yOpenGL >= 3 && yOpenGL <= 3.5) {
+            tipoVsMaquina = false;
+        }
+        // Botón vs Máquina
+        else if (xOpenGL >= 1 && xOpenGL <= 4 && yOpenGL >= 2 && yOpenGL <= 2.5) {
+            tipoVsMaquina = true;
+        }
+        else return; // Click fuera de los botones, no hacer nada
+
+        // Iniciar el modo seleccionado
+        if (juego) {
+            if (modoSeleccionado == ModoJuego::MODO_5x6)
+                juego->iniciar5x6();
+            else
+                juego->iniciarPetty();
+        }
+
+        estadoActual = EstadoApp::JUEGO;
+        glutPostRedisplay();
     }
 }
 
@@ -174,3 +204,42 @@ void Renderizador::mostrarSeleccionModo() {
     for (const char* c = textoPetty; *c; ++c)
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
 }
+
+void Renderizador::mostrarSeleccionTipoJuego() {
+    glColor3f(0, 0, 0);
+    glRasterPos2f(1.0f, 4.5f);
+    const char* texto = "Selecciona tipo de juego:";
+    for (const char* c = texto; *c; ++c)
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+
+    // Botón Persona vs Persona
+    glColor3f(0.2f, 0.6f, 0.9f);
+    glBegin(GL_POLYGON);
+    glVertex2f(1, 3);
+    glVertex2f(4, 3);
+    glVertex2f(4, 3.5);
+    glVertex2f(1, 3.5);
+    glEnd();
+
+    glColor3f(1, 1, 1);
+    glRasterPos2f(1.4f, 3.2f);
+    const char* pvp = "Persona vs Persona";
+    for (const char* c = pvp; *c; ++c)
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+
+    // Botón Persona vs Máquina
+    glColor3f(0.2f, 0.6f, 0.2f);
+    glBegin(GL_POLYGON);
+    glVertex2f(1, 2);
+    glVertex2f(4, 2);
+    glVertex2f(4, 2.5);
+    glVertex2f(1, 2.5);
+    glEnd();
+
+    glColor3f(1, 1, 1);
+    glRasterPos2f(1.5f, 2.2f);
+    const char* pvc = "Persona vs Maquina";
+    for (const char* c = pvc; *c; ++c)
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+}
+

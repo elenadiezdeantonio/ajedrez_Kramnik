@@ -19,6 +19,7 @@ public:
     static void cambiarAEstadoJuego();
     static EstadoApp obtenerEstadoActual();
     static void establecerJuego(Juego* j);
+    static void mostrarSeleccionTipoJuego();
 };
 
 
