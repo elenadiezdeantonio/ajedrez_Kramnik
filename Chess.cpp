@@ -4,19 +4,26 @@
 #include "freeglut.h"
 
 int main(int argc, char** argv) {
-    Juego juego;
-    juego.iniciar5x6();
-
+    // Inicializar GLUT y OpenGL
     Renderizador::inicializar(argc, argv);
-    Renderizador::establecerTablero(&juego.obtenerTablero());
 
-    InterfazUsuario::establecerJuego(&juego);
+    // Registrar funciones de renderizado y manejo del mouse
     InterfazUsuario::registrarCallbacks();
 
+    // Crear instancia del juego
+    static Juego juego;
+
+    // Establecer el juego para la interfaz y el renderizador
+    InterfazUsuario::establecerJuego(&juego);
+    Renderizador::establecerJuego(&juego);
+
+    // NO iniciar el juego aquí, se hará después de seleccionar el modo
+    Renderizador::establecerTablero(&juego.obtenerTablero());
+    // Iniciar el bucle principal de eventos
     glutMainLoop();
+
     return 0;
 }
-
 
 
 

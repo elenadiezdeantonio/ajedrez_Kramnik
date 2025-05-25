@@ -22,8 +22,8 @@ void InterfazUsuario::mouseCallback(int button, int state, int x, int y) {
 
     EstadoApp estado = Renderizador::obtenerEstadoActual();
 
-    if (estado == EstadoApp::MENU_PRINCIPAL) {
-        // Delega el evento de ratón al menú
+    if (estado == EstadoApp::MENU_PRINCIPAL || estado == EstadoApp::SELECCION_MODO) {
+        // Delega el evento de ratón al Renderizador en ambos estados
         Renderizador::manejarMouse(button, state, x, y);
         return;
     }
