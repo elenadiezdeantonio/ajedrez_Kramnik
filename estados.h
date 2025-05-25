@@ -3,7 +3,13 @@ enum class EstadoApp {
     MENU_PRINCIPAL,
     SELECCION_MODO,
     SELECCION_TIPO_JUEGO,
-    JUEGO
+    SELECCION_DIFICULTAD,
+    JUEGO,
+};
+
+enum class DificultadBot {
+    NOOB,
+    MID
 };
 
 extern EstadoApp estadoActual;

@@ -23,7 +23,10 @@ void InterfazUsuario::mouseCallback(int button, int state, int x, int y) {
 
     EstadoApp estado = Renderizador::obtenerEstadoActual();
 
-    if (estado == EstadoApp::MENU_PRINCIPAL || estado == EstadoApp::SELECCION_MODO || estado == EstadoApp::SELECCION_TIPO_JUEGO) {
+    if (estado == EstadoApp::MENU_PRINCIPAL ||
+        estado == EstadoApp::SELECCION_MODO ||
+        estado == EstadoApp::SELECCION_TIPO_JUEGO ||
+        estado == EstadoApp::SELECCION_DIFICULTAD) {
         Renderizador::manejarMouse(button, state, x, y);
         return;
     }
@@ -49,9 +52,15 @@ void InterfazUsuario::mouseCallback(int button, int state, int x, int y) {
         if (tipoVsMaquina) {
             // Asume que el jugador es blanco, el bot es negro
             if (juego->obtenerTurnoActual() == Color::NEGRO) {
-                juego->jugarTurnoBotNoob();  // mueve el bot
+                if (dificultadSeleccionada == DificultadBot::NOOB) {
+                    juego->jugarTurnoBotNoob();  // mueve el bot de dificultad Noob
+                }
+                else if (dificultadSeleccionada == DificultadBot::MID) {
+                    juego->jugarTurnoBotMid();  // mueve el bot de dificultad Mid
+                }
                 glutPostRedisplay();
             }
         }
     }
 }
+

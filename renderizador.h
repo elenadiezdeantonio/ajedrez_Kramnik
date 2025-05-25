@@ -5,8 +5,8 @@
 class Renderizador {
 private:
     static Tablero* tablero;
-    static Juego* juego;
 public:
+    static Juego* juego;
     static void inicializar(int argc, char** argv);
     static void establecerTablero(Tablero* t);
     static void dibujar();
@@ -16,11 +16,14 @@ public:
     static void manejarMouse(int boton, int estado, int x, int y);
     static void mostrarMenu();
     static void mostrarSeleccionModo();
+    static void mostrarSeleccionTipoJuego();
+    static void mostrarSeleccionDificultad();
     static void cambiarAEstadoJuego();
     static EstadoApp obtenerEstadoActual();
     static void establecerJuego(Juego* j);
-    static void mostrarSeleccionTipoJuego();
+    static void iniciarJuegoSegunModo();
 };
+
 
 
 

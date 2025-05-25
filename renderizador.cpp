@@ -6,6 +6,7 @@ Juego* Renderizador::juego = nullptr;
 EstadoApp estadoActual = EstadoApp::MENU_PRINCIPAL;
 ModoJuego modoSeleccionado = ModoJuego::MODO_5x6;
 bool tipoVsMaquina = false;
+DificultadBot dificultadSeleccionada = DificultadBot::NOOB;
 
 void Renderizador::establecerJuego(Juego* j) {
     juego = j;
@@ -37,7 +38,10 @@ void Renderizador::dibujar() {
         mostrarSeleccionModo();
         break;
     case EstadoApp::SELECCION_TIPO_JUEGO:
-        mostrarSeleccionTipoJuego();  // Deberás implementar esta función
+        mostrarSeleccionTipoJuego();
+        break;
+    case EstadoApp::SELECCION_DIFICULTAD:
+        mostrarSeleccionDificultad();
         break;
 
     case EstadoApp::JUEGO:
@@ -143,27 +147,34 @@ void Renderizador::manejarMouse(int boton, int estado, int x, int y) {
     }
 
     else if (estadoActual == EstadoApp::SELECCION_TIPO_JUEGO) {
-        // Botón vs Persona
-        if (xOpenGL >= 1 && xOpenGL <= 4 && yOpenGL >= 3 && yOpenGL <= 3.5) {
-            tipoVsMaquina = false;
+        if (xOpenGL >= 1 && xOpenGL <= 4) {
+            if (yOpenGL >= 3 && yOpenGL <= 3.5) {
+                tipoVsMaquina = false;
+                estadoActual = EstadoApp::JUEGO;
+                iniciarJuegoSegunModo();
+                glutPostRedisplay();
+            }
+            else if (yOpenGL >= 2 && yOpenGL <= 2.5) {
+                tipoVsMaquina = true;
+                estadoActual = EstadoApp::SELECCION_DIFICULTAD;
+                glutPostRedisplay();
+            }
         }
-        // Botón vs Máquina
-        else if (xOpenGL >= 1 && xOpenGL <= 4 && yOpenGL >= 2 && yOpenGL <= 2.5) {
-            tipoVsMaquina = true;
-        }
-        else return; // Click fuera de los botones, no hacer nada
-
-        // Iniciar el modo seleccionado
-        if (juego) {
-            if (modoSeleccionado == ModoJuego::MODO_5x6)
-                juego->iniciar5x6();
-            else
-                juego->iniciarPetty();
-        }
-
-        estadoActual = EstadoApp::JUEGO;
-        glutPostRedisplay();
     }
+    else if (estadoActual == EstadoApp::SELECCION_DIFICULTAD) {
+        if (xOpenGL >= 1 && xOpenGL <= 4) {
+            if (yOpenGL >= 3 && yOpenGL <= 3.5) {
+                dificultadSeleccionada = DificultadBot::NOOB;
+            }
+            else if (yOpenGL >= 2 && yOpenGL <= 2.5) {
+                dificultadSeleccionada = DificultadBot::MID;
+            }
+            estadoActual = EstadoApp::JUEGO;
+            iniciarJuegoSegunModo();
+            glutPostRedisplay();
+        }
+    }
+
 }
 
 
@@ -242,4 +253,61 @@ void Renderizador::mostrarSeleccionTipoJuego() {
     for (const char* c = pvc; *c; ++c)
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
 }
+
+void Renderizador::mostrarSeleccionDificultad() {
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glRasterPos2f(1.5f, 4.5f);
+    const char* titulo = "Selecciona la dificultad del bot:";
+    for (const char* c = titulo; *c != '\0'; ++c)
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+
+    // Botón NOOB
+    glColor3f(0.2f, 0.6f, 0.2f); // Verde
+    glBegin(GL_QUADS);
+    glVertex2f(1.0f, 3.0f);
+    glVertex2f(4.0f, 3.0f);
+    glVertex2f(4.0f, 3.5f);
+    glVertex2f(1.0f, 3.5f);
+    glEnd();
+
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glRasterPos2f(2.2f, 3.2f);
+    const char* textoNoob = "NOOB";
+    for (const char* c = textoNoob; *c != '\0'; ++c)
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+
+    // Botón MID
+    glColor3f(0.6f, 0.2f, 0.2f); // Rojo oscuro
+    glBegin(GL_QUADS);
+    glVertex2f(1.0f, 2.0f);
+    glVertex2f(4.0f, 2.0f);
+    glVertex2f(4.0f, 2.5f);
+    glVertex2f(1.0f, 2.5f);
+    glEnd();
+
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glRasterPos2f(2.3f, 2.2f);
+    const char* textoMid = "MID";
+    for (const char* c = textoMid; *c != '\0'; ++c)
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+}
+
+void Renderizador::iniciarJuegoSegunModo() {
+    Juego* juego = Renderizador::juego;
+    if (!juego) return;
+
+    if (modoSeleccionado == ModoJuego::MODO_5x6)
+        juego->iniciar5x6();
+    else
+        juego->iniciarPetty();
+
+    // Si es contra máquina y el turno actual es del bot (por ejemplo, siempre negras)
+    if (tipoVsMaquina && juego->obtenerTurnoActual() == Color::NEGRO) {
+        if (dificultadSeleccionada == DificultadBot::NOOB)
+            juego->jugarTurnoBotNoob();
+        else
+            juego->jugarTurnoBotMid();
+    }
+}
+
 
