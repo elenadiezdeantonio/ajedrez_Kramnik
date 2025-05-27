@@ -8,6 +8,8 @@ ModoJuego modoSeleccionado = ModoJuego::MODO_5x6;
 bool tipoVsMaquina = false;
 DificultadBot dificultadSeleccionada = DificultadBot::NOOB;
 
+std::string Renderizador::mensajeEstado = "";
+
 void Renderizador::establecerJuego(Juego* j) {
     juego = j;
 }
@@ -43,6 +45,9 @@ void Renderizador::dibujar() {
     case EstadoApp::SELECCION_DIFICULTAD:
         mostrarSeleccionDificultad();
         break;
+    case EstadoApp::FIN_PARTIDA:
+        mostrarPantallaFinPartida();
+        break;
 
     case EstadoApp::JUEGO:
         if (tablero) {
@@ -55,6 +60,7 @@ void Renderizador::dibujar() {
                 }
         }
         break;
+
     }
 
     glutSwapBuffers();
@@ -310,4 +316,17 @@ void Renderizador::iniciarJuegoSegunModo() {
     }
 }
 
+void Renderizador::mostrarPantallaFinPartida() {
+    // Fondo negro
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
+    // Texto blanco
+    glColor3f(1.0, 1.0, 1.0);
+    glRasterPos2f(1.5f, 4.5f);
+    std::string mensaje = "FIN DE LA PARTIDA";
+    for (char c : mensaje)
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
+    glRasterPos2f(1.25f, 2.2f);
+    for (char c : mensajeEstado)
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
+}

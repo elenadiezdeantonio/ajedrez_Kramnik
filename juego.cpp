@@ -6,6 +6,7 @@
 #include "alfil.h"
 #include "caballo.h"
 #include "posicion.h"
+#include "renderizador.h"
 #include <iostream>
 
 Juego::Juego() : turnoActual(Color::BLANCO) {}
@@ -47,8 +48,6 @@ void Juego::iniciarPetty() {
     tablero.colocarPieza(new Caballo(Color::BLANCO, { 0, 3 }), { 0, 3 });
     tablero.colocarPieza(new Torre(Color::BLANCO, { 0, 4 }), { 0, 4 });
 }
-
-
 
 bool Juego::jugarTurno(Posicion origen, Posicion destino) {
     Pieza* pieza = tablero.obtenerPieza(origen);
@@ -135,11 +134,26 @@ bool Juego::jugarTurno(Posicion origen, Posicion destino) {
 
         cambiarTurno();
         registrarEstadoTablero();
+        if (esJaqueMate(turnoActual)) {
+            Renderizador::mensajeEstado = "¡Jaque mate! Ganan " + (turnoActual == Color::BLANCO ? std::string("negras") : std::string("blancas"));
+            estadoActual = EstadoApp::FIN_PARTIDA;
+        }
+        else if (estaAhogado(turnoActual)) {
+            Renderizador::mensajeEstado = "¡Empate por ahogado!";
+            estadoActual = EstadoApp::FIN_PARTIDA;
+        }
+        else if (!tieneMaterialSuficiente()) {
+            Renderizador::mensajeEstado = "¡Empate por material insuficiente!";
+            estadoActual = EstadoApp::FIN_PARTIDA;
+        }
+
 
         return true;
     }
     return false;
 }
+
+
 
 void Juego::mostrarTablero() const {
     tablero.mostrar();
@@ -157,7 +171,6 @@ void Juego::cambiarTurno() {
         turnoActual = Color::BLANCO;
     }
 }
-
 bool Juego::estaEnJaque(Color color) {
     Posicion reyPos;
 
@@ -283,6 +296,7 @@ bool Juego::estaAhogado(Color color) {
 
     return true; // No hay movimientos legales -> ahogado
 }
+
 bool Juego::tieneMaterialSuficiente() {
     int reyes = 0;
     int alfiles = 0;
@@ -358,6 +372,7 @@ bool Juego::hayTripleRepeticion() const {
     return false;
 }
 
+
 bool Juego::jugarTurnoBotNoob() {
     std::srand(std::time(nullptr));
     std::vector<std::pair<Posicion, Posicion>> movimientosValidos;
@@ -432,7 +447,18 @@ bool Juego::jugarTurnoBotNoob() {
 
     cambiarTurno();
     registrarEstadoTablero();
-
+    if (esJaqueMate(turnoActual)) {
+        Renderizador::mensajeEstado = "¡Jaque mate! Ganan " + (turnoActual == Color::BLANCO ? std::string("negras") : std::string("blancas"));
+        estadoActual = EstadoApp::FIN_PARTIDA;
+    }
+    else if (estaAhogado(turnoActual)) {
+        Renderizador::mensajeEstado = "¡Empate por ahogado!";
+        estadoActual = EstadoApp::FIN_PARTIDA;
+    }
+    else if (!tieneMaterialSuficiente()) {
+        Renderizador::mensajeEstado = "¡Empate por material insuficiente!";
+        estadoActual = EstadoApp::FIN_PARTIDA;
+    }
     return true;
 }
 
@@ -471,9 +497,7 @@ int Juego::evaluarMovimiento(const Posicion& origen, const Posicion& destino) {
 
     return puntuacion;
 }
-Tablero& Juego::obtenerTablero() {
-    return tablero;
-}
+
 
 bool Juego::jugarTurnoBotMid() {
     std::srand(std::time(nullptr));
@@ -545,13 +569,24 @@ bool Juego::jugarTurnoBotMid() {
 
     cambiarTurno();
     registrarEstadoTablero();
-
+    if (esJaqueMate(turnoActual)) {
+        Renderizador::mensajeEstado = "¡Jaque mate! Ganan " + (turnoActual == Color::BLANCO ? std::string("negras") : std::string("blancas"));
+        estadoActual = EstadoApp::FIN_PARTIDA;
+    }
+    else if (estaAhogado(turnoActual)) {
+        Renderizador::mensajeEstado = "¡Empate por ahogado!";
+        estadoActual = EstadoApp::FIN_PARTIDA;
+    }
+    else if (!tieneMaterialSuficiente()) {
+        Renderizador::mensajeEstado = "¡Empate por material insuficiente!";
+        estadoActual = EstadoApp::FIN_PARTIDA;
+    }
     return true;
 }
 
-
-
-
+Tablero& Juego::obtenerTablero() {
+    return tablero;
+}
 
 
 

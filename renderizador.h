@@ -2,10 +2,12 @@
 #include "tablero.h"
 #include "estados.h"
 #include "juego.h"
+class Juego;
 class Renderizador {
 private:
     static Tablero* tablero;
 public:
+    static std::string mensajeEstado;
     static Juego* juego;
     static void inicializar(int argc, char** argv);
     static void establecerTablero(Tablero* t);
@@ -18,13 +20,9 @@ public:
     static void mostrarSeleccionModo();
     static void mostrarSeleccionTipoJuego();
     static void mostrarSeleccionDificultad();
+    static void mostrarPantallaFinPartida();
     static void cambiarAEstadoJuego();
     static EstadoApp obtenerEstadoActual();
     static void establecerJuego(Juego* j);
     static void iniciarJuegoSegunModo();
 };
-
-
-
-
-
