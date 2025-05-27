@@ -6,7 +6,6 @@
 #include "alfil.h"
 #include "caballo.h"
 #include "posicion.h"
-#include "renderizador.h"
 #include <iostream>
 
 Juego::Juego() : turnoActual(Color::BLANCO) {}
@@ -92,48 +91,11 @@ bool Juego::jugarTurno(Posicion origen, Posicion destino) {
             movimientosSinCapturaNiPeon++;
         }
 
-        // Verifica si el peón debe coronarse
-        Pieza* piezaMovida = tablero.obtenerPieza(destino);
-        if (piezaMovida && dynamic_cast<Peon*>(piezaMovida)) {
-            int filaFinal;
-            if (piezaMovida->getColor() == Color::BLANCO) {
-                filaFinal = 5;
-            }
-            else {
-                filaFinal = 0;
-            }
-
-            if (destino.fila == filaFinal) {
-                std::cout << "¡Tu peon ha llegado al final del tablero!\n";
-                std::cout << "¿A qué pieza deseas coronarlo? (R: Reina, T: Torre, A: Alfil, C: Caballo): ";
-
-                char opcion;
-                std::cin >> opcion;
-                opcion = std::toupper(opcion); // Por si meten minúsculas
-
-                delete piezaMovida;
-
-                switch (opcion) {
-                case 'T':
-                    tablero.colocarPieza(new Torre(turnoActual, destino), destino);
-                    break;
-                case 'A':
-                    tablero.colocarPieza(new Alfil(turnoActual, destino), destino);
-                    break;
-                case 'C':
-                    tablero.colocarPieza(new Caballo(turnoActual, destino), destino);
-                    break;
-                default:
-                    tablero.colocarPieza(new Reina(turnoActual, destino), destino);
-                    break;
-                }
-
-                std::cout << "¡Peon coronado exitosamente!\n";
-            }
-        }
+        verificarCoronacion(destino);
 
         cambiarTurno();
         registrarEstadoTablero();
+        verificarCondicionesDeTablas(vsMaquina);
         if (esJaqueMate(turnoActual)) {
             Renderizador::mensajeEstado = "¡Jaque mate! Ganan " + (turnoActual == Color::BLANCO ? std::string("negras") : std::string("blancas"));
             estadoActual = EstadoApp::FIN_PARTIDA;
@@ -447,6 +409,7 @@ bool Juego::jugarTurnoBotNoob() {
 
     cambiarTurno();
     registrarEstadoTablero();
+    verificarCondicionesDeTablas(vsMaquina);
     if (esJaqueMate(turnoActual)) {
         Renderizador::mensajeEstado = "¡Jaque mate! Ganan " + (turnoActual == Color::BLANCO ? std::string("negras") : std::string("blancas"));
         estadoActual = EstadoApp::FIN_PARTIDA;
@@ -569,6 +532,7 @@ bool Juego::jugarTurnoBotMid() {
 
     cambiarTurno();
     registrarEstadoTablero();
+    verificarCondicionesDeTablas(vsMaquina);
     if (esJaqueMate(turnoActual)) {
         Renderizador::mensajeEstado = "¡Jaque mate! Ganan " + (turnoActual == Color::BLANCO ? std::string("negras") : std::string("blancas"));
         estadoActual = EstadoApp::FIN_PARTIDA;
@@ -586,6 +550,74 @@ bool Juego::jugarTurnoBotMid() {
 
 Tablero& Juego::obtenerTablero() {
     return tablero;
+}
+
+void Juego::verificarCoronacion(const Posicion& destino) {
+    Pieza* piezaMovida = tablero.obtenerPieza(destino);
+    if (piezaMovida && dynamic_cast<Peon*>(piezaMovida)) {
+        int filaFinal = (piezaMovida->getColor() == Color::BLANCO) ? 5 : 0;
+
+        if (destino.fila == filaFinal) {
+            // Guardamos el estado para usarlo luego desde el teclado
+            enCoronacion = true;
+            posicionCoronacion = destino;
+            estadoActual = EstadoApp::CORONACION_PEON;
+            // Esperar interacción por tecladoCallback()
+            glutPostRedisplay();
+        }
+    }
+}
+
+void Juego::coronarPeonConTecla(char tecla) {
+    if (!enCoronacion) return;
+
+    tecla = std::toupper(tecla);  // Asegurar que la tecla es mayúscula
+    Pieza* antigua = tablero.obtenerPieza(posicionCoronacion);
+    Color colorPeon = antigua->getColor();
+    if (!antigua || !dynamic_cast<Peon*>(antigua)) return;
+
+    delete antigua;
+
+    switch (tecla) {
+    case 'T':
+        tablero.colocarPieza(new Torre(colorPeon, posicionCoronacion), posicionCoronacion);
+        break;
+    case 'A':
+        tablero.colocarPieza(new Alfil(colorPeon, posicionCoronacion), posicionCoronacion);
+        break;
+    case 'C':
+        tablero.colocarPieza(new Caballo(colorPeon, posicionCoronacion), posicionCoronacion);
+        break;
+    case 'R':
+    default:
+        tablero.colocarPieza(new Reina(colorPeon, posicionCoronacion), posicionCoronacion);
+        break;
+    }
+
+    enCoronacion = false;
+    estadoActual = EstadoApp::JUEGO;
+
+    // Refrescar pantalla
+    glutPostRedisplay();
+}
+
+void Juego::verificarCondicionesDeTablas(bool vsMaquina) {
+
+    if ((getMovimientosSinCapturaNiPeon() >= 4 || hayTripleRepeticion()) &&
+        (!vsMaquina || obtenerTurnoActual() == Color::BLANCO)) {
+
+        std::cout << "Condición de tablas detectada\n";
+
+        if (getMovimientosSinCapturaNiPeon() >= 4) {
+            Renderizador::mensajeEstado = "50 movimientos sin captura ni movimiento de peon.";
+        }
+        else {
+            Renderizador::mensajeEstado = "Triple repeticion de la posicion.";
+        }
+
+        estadoActual = EstadoApp::SOLICITUD_TABLAS;
+        glutPostRedisplay();
+    }
 }
 
 

@@ -1,5 +1,6 @@
 #include "renderizador.h"
-#include "freeglut.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 Tablero* Renderizador::tablero = nullptr;
 Juego* Renderizador::juego = nullptr;
@@ -7,8 +8,44 @@ EstadoApp estadoActual = EstadoApp::MENU_PRINCIPAL;
 ModoJuego modoSeleccionado = ModoJuego::MODO_5x6;
 bool tipoVsMaquina = false;
 DificultadBot dificultadSeleccionada = DificultadBot::NOOB;
+std::map<std::string, GLuint> Renderizador::texturasPiezas;
 
 std::string Renderizador::mensajeEstado = "";
+
+GLuint cargarTextura(const std::string& ruta) {
+    int ancho, alto, canales;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char* datos = stbi_load(ruta.c_str(), &ancho, &alto, &canales, 4); // fuerza RGBA
+    if (!datos) {
+
+        return 0;
+    }
+
+    GLuint texturaID;
+    glGenTextures(1, &texturaID);
+    glBindTexture(GL_TEXTURE_2D, texturaID);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ancho, alto, 0, GL_RGBA, GL_UNSIGNED_BYTE, datos);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    stbi_image_free(datos);
+    return texturaID;
+}
+
+void Renderizador::cargarTexturasPiezas() {
+    texturasPiezas["R_B"] = cargarTextura("imagenes/R_B.png");
+    texturasPiezas["r_N"] = cargarTextura("imagenes/r_N.png");
+    texturasPiezas["Q_B"] = cargarTextura("imagenes/Q_B.png");
+    texturasPiezas["q_N"] = cargarTextura("imagenes/q_N.png");
+    texturasPiezas["A_B"] = cargarTextura("imagenes/A_B.png");
+    texturasPiezas["a_N"] = cargarTextura("imagenes/a_N.png");
+    texturasPiezas["C_B"] = cargarTextura("imagenes/C_B.png");
+    texturasPiezas["c_N"] = cargarTextura("imagenes/c_N.png");
+    texturasPiezas["T_B"] = cargarTextura("imagenes/T_B.png");
+    texturasPiezas["t_N"] = cargarTextura("imagenes/t_N.png");
+    texturasPiezas["P_B"] = cargarTextura("imagenes/P_B.png");
+    texturasPiezas["p_N"] = cargarTextura("imagenes/p_N.png");
+}
 
 void Renderizador::establecerJuego(Juego* j) {
     juego = j;
@@ -23,6 +60,9 @@ void Renderizador::inicializar(int argc, char** argv) {
     glLoadIdentity();
     gluOrtho2D(0, 5, 0, 6);
     glClearColor(1, 1, 1, 1);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    cargarTexturasPiezas();
 }
 
 void Renderizador::establecerTablero(Tablero* t) {
@@ -48,7 +88,12 @@ void Renderizador::dibujar() {
     case EstadoApp::FIN_PARTIDA:
         mostrarPantallaFinPartida();
         break;
-
+    case EstadoApp::CORONACION_PEON:
+        mostrarOpcionesCoronacion();
+        break;
+    case EstadoApp::SOLICITUD_TABLAS:
+        mostrarSolicitudTablas(Renderizador::mensajeEstado);
+        break;
     case EstadoApp::JUEGO:
         if (tablero) {
             for (int fila = 0; fila < 6; ++fila)
@@ -83,12 +128,33 @@ void Renderizador::dibujarCasilla(int fila, int col) {
 }
 
 void Renderizador::dibujarPieza(Pieza* pieza, int fila, int col) {
-    char simbolo = pieza->getSimbolo();
+    if (!pieza) return;
 
-    glColor3f(0.0f, 0.0f, 0.0f);
-    glRasterPos2f(col + 0.4f, fila + 0.4f);
-    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, simbolo);
+    std::string clave = "";
+    clave += pieza->getSimbolo();  // Ej: 'P', 'R', 'A', etc.
+    clave += "_";
+    clave += (pieza->getColor() == Color::BLANCO ? "B" : "N");
+
+    GLuint textura = texturasPiezas[clave];
+    if (textura == 0) return;
+
+    float x = col;
+    float y = fila;
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textura);
+
+    glColor3f(1.0f, 1.0f, 1.0f); // blanco para no teñir la textura
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 0.0f); glVertex2f(x, y);
+    glTexCoord2f(1.0f, 0.0f); glVertex2f(x + 1, y);
+    glTexCoord2f(1.0f, 1.0f); glVertex2f(x + 1, y + 1);
+    glTexCoord2f(0.0f, 1.0f); glVertex2f(x, y + 1);
+    glEnd();
+
+    glDisable(GL_TEXTURE_2D);
 }
+
 
 void Renderizador::mostrarMenu() {
     glColor3f(0, 0, 0);
@@ -317,16 +383,106 @@ void Renderizador::iniciarJuegoSegunModo() {
 }
 
 void Renderizador::mostrarPantallaFinPartida() {
-    // Fondo negro
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    // Fondo blanco
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-    // Texto blanco
-    glColor3f(1.0, 1.0, 1.0);
-    glRasterPos2f(1.5f, 4.5f);
+    // Texto negro
+    glColor3f(0.0f, 0.0f, 0.0f);
+
+    // Mensaje de fin de partida
+    glRasterPos2f(1.6f, 4.5f);
     std::string mensaje = "FIN DE LA PARTIDA";
     for (char c : mensaje)
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
-    glRasterPos2f(1.25f, 2.2f);
+
+    // Mensaje de estado (como "Tablas reclamadas", etc.)
+    glRasterPos2f(1.2f, 2.2f);
     for (char c : mensajeEstado)
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
+}
+
+
+void Renderizador::mostrarOpcionesCoronacion() {
+    // Fondo blanco
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // Texto negro
+    glColor3f(0.0f, 0.0f, 0.0f);
+
+    // Primer mensaje
+    glRasterPos2f(1.2f, 3.2f);
+    std::string mensaje = "¡Peon ha llegado al final!";
+    for (char c : mensaje)
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
+
+    // Segundo mensaje
+    glRasterPos2f(0.5f, 2.6f);
+    std::string opciones = "Elige: R (Reina), T (Torre), A (Alfil), C (Caballo)";
+    for (char c : opciones)
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
+}
+
+
+void Renderizador::mostrarSolicitudTablas(const std::string& mensajeEstado) {
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);  // Fondo blanco
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // Establecer sistema de coordenadas ortográficas
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0, 5, 0, 6);  // Mismo sistema que mostrarMenu
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    glColor3f(0.0f, 0.0f, 0.0f);  // Texto negro
+
+    // Título
+    glRasterPos2f(1.2f, 5.0f);
+    std::string linea1 = "¿Deseas reclamar tablas?";
+    for (char c : linea1)
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
+
+    // Mensaje del estado
+    glRasterPos2f(0.8f, 4.6f);
+    for (char c : mensajeEstado)
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
+
+    // Botones: SÍ y NO
+
+    float x_si1 = 1.2f, y_si1 = 3.0f;
+    float x_si2 = 2.2f, y_si2 = 3.6f;
+
+    float x_no1 = 2.8f, y_no1 = 3.0f;
+    float x_no2 = 3.8f, y_no2 = 3.6f;
+
+    // Dibujar botones
+    glColor3f(0.8f, 0.8f, 0.8f); // gris claro
+
+    glBegin(GL_QUADS); // Botón Sí
+    glVertex2f(x_si1, y_si1);
+    glVertex2f(x_si2, y_si1);
+    glVertex2f(x_si2, y_si2);
+    glVertex2f(x_si1, y_si2);
+    glEnd();
+
+    glBegin(GL_QUADS); // Botón No
+    glVertex2f(x_no1, y_no1);
+    glVertex2f(x_no2, y_no1);
+    glVertex2f(x_no2, y_no2);
+    glVertex2f(x_no1, y_no2);
+    glEnd();
+
+    // Texto dentro de botones
+    glColor3f(0.0f, 0.0f, 0.0f);
+
+    glRasterPos2f(1.55f, 3.25f);
+    for (char c : std::string("Si"))
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
+
+    glRasterPos2f(3.15f, 3.25f);
+    for (char c : std::string("No"))
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
 }

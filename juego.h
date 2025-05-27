@@ -6,6 +6,8 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
+#include "renderizador.h"
+#include "freeglut.h"
 class Juego {
 private:
     Tablero tablero;
@@ -13,7 +15,9 @@ private:
     int movimientosSinCapturaNiPeon = 0;
     std::map<std::string, int> historialTableros;
     std::string serializarTablero() const;
-
+    bool enCoronacion = false;
+    Posicion posicionCoronacion;
+    bool vsMaquina = false;
 public:
     Juego();
     bool jugarTurno(Posicion origen, Posicion destino);
@@ -33,9 +37,11 @@ public:
     void iniciarPetty();
     int evaluarMovimiento(const Posicion& origen, const Posicion& destino);
     Tablero& obtenerTablero();
-
-
+    void verificarCoronacion(const Posicion& destino);
+    void coronarPeonConTecla(char tecla);
+    void verificarCondicionesDeTablas(bool vsMaquina);
 };
+
 
 
 

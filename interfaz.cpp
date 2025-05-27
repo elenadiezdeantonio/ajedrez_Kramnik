@@ -11,18 +11,46 @@ void InterfazUsuario::establecerJuego(Juego* j) {
 void InterfazUsuario::registrarCallbacks() {
     glutDisplayFunc(displayCallback);
     glutMouseFunc(mouseCallback);
+    glutKeyboardFunc(keyboardCallback);
 }
 
 void InterfazUsuario::displayCallback() {
     Renderizador::dibujar();
 }
 
-
 void InterfazUsuario::mouseCallback(int button, int state, int x, int y) {
     if (state != GLUT_DOWN) return;
 
     EstadoApp estado = Renderizador::obtenerEstadoActual();
 
+    // Si estamos en la pantalla de solicitud de tablas
+    if (estado == EstadoApp::SOLICITUD_TABLAS) {
+        int anchoVentana = glutGet(GLUT_WINDOW_WIDTH);
+        int altoVentana = glutGet(GLUT_WINDOW_HEIGHT);
+
+        // Convertir coordenadas de píxeles a coordenadas ortográficas (0–5 en X, 0–6 en Y)
+        float xf = (x / (float)anchoVentana) * 5.0f;
+        float yf = ((altoVentana - y) / (float)altoVentana) * 6.0f;
+
+        // Botón "Sí" (mismo que en mostrarSolicitudTablas)
+        if (xf >= 1.2f && xf <= 2.2f && yf >= 3.0f && yf <= 3.6f) {
+            Renderizador::mensajeEstado = "¡Tablas reclamadas!";
+            estadoActual = EstadoApp::FIN_PARTIDA;
+            glutPostRedisplay();
+            return;
+        }
+
+        // Botón "No"
+        if (xf >= 2.8f && xf <= 3.8f && yf >= 3.0f && yf <= 3.6f) {
+            estadoActual = EstadoApp::JUEGO;
+            glutPostRedisplay();
+            return;
+        }
+
+        return;
+    }
+
+    // Menús normales
     if (estado == EstadoApp::MENU_PRINCIPAL ||
         estado == EstadoApp::SELECCION_MODO ||
         estado == EstadoApp::SELECCION_TIPO_JUEGO ||
@@ -31,12 +59,12 @@ void InterfazUsuario::mouseCallback(int button, int state, int x, int y) {
         return;
     }
 
-    // Si estamos en el juego
+    // Si estamos en el juego normal
     int anchoVentana = glutGet(GLUT_WINDOW_WIDTH);
     int altoVentana = glutGet(GLUT_WINDOW_HEIGHT);
 
     int col = x / (anchoVentana / 5);
-    int fila = 5 - (y / (altoVentana / 6)); // Invertir eje Y
+    int fila = 5 - (y / (altoVentana / 6));
 
     static Posicion origen(-1, -1);
 
@@ -50,17 +78,26 @@ void InterfazUsuario::mouseCallback(int button, int state, int x, int y) {
 
         // Turno del bot si está activado el modo vs máquina
         if (tipoVsMaquina) {
-            // Asume que el jugador es blanco, el bot es negro
             if (juego->obtenerTurnoActual() == Color::NEGRO) {
                 if (dificultadSeleccionada == DificultadBot::NOOB) {
-                    juego->jugarTurnoBotNoob();  // mueve el bot de dificultad Noob
+                    juego->jugarTurnoBotNoob();
                 }
                 else if (dificultadSeleccionada == DificultadBot::MID) {
-                    juego->jugarTurnoBotMid();  // mueve el bot de dificultad Mid
+                    juego->jugarTurnoBotMid();
                 }
                 glutPostRedisplay();
             }
         }
     }
+}
+
+void InterfazUsuario::keyboardCallback(unsigned char key, int x, int y) {
+    // Si estamos en pantalla de coronación
+    if (estadoActual == EstadoApp::CORONACION_PEON) {
+        juego->coronarPeonConTecla(key);  // Delega en la lógica de coronación del juego
+        return;
+    }
+
+
 }
 

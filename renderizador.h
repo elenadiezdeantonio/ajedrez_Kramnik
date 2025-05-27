@@ -2,10 +2,16 @@
 #include "tablero.h"
 #include "estados.h"
 #include "juego.h"
+#include <map>
+#include <string>
+#include "freeglut.h"
+
+
 class Juego;
 class Renderizador {
 private:
     static Tablero* tablero;
+    static std::map<std::string, GLuint> texturasPiezas;
 public:
     static std::string mensajeEstado;
     static Juego* juego;
@@ -25,4 +31,7 @@ public:
     static EstadoApp obtenerEstadoActual();
     static void establecerJuego(Juego* j);
     static void iniciarJuegoSegunModo();
+    static void mostrarOpcionesCoronacion();
+    static void mostrarSolicitudTablas(const std::string& mensajeEstado);
+    static void cargarTexturasPiezas();
 };

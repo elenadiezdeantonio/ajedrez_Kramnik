@@ -5,12 +5,9 @@ enum class EstadoApp {
     SELECCION_TIPO_JUEGO,
     SELECCION_DIFICULTAD,
     JUEGO,
-    FIN_PARTIDA
-};
-
-enum class DificultadBot {
-    NOOB,
-    MID
+    FIN_PARTIDA,
+    CORONACION_PEON,
+    SOLICITUD_TABLAS
 };
 
 extern EstadoApp estadoActual;
@@ -22,6 +19,11 @@ enum class ModoJuego {
 
 extern ModoJuego modoSeleccionado;
 extern bool tipoVsMaquina;
+
+enum class DificultadBot {
+    NOOB,
+    MID
+};
 
 extern DificultadBot dificultadSeleccionada;
 
