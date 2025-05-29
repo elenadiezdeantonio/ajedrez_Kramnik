@@ -1,7 +1,9 @@
 #include "alfil.h"
 #include "Tablero.h"
 #include <cmath>
-Alfil::Alfil(Color color, Posicion pos) : Pieza(color, pos) {}
+
+Alfil::Alfil(Color color, Posicion pos) : Pieza(color, pos, t_Pieza::ALFIL) {}
+
 
 char Alfil::getSimbolo() const {
     if (color == Color::BLANCO) {

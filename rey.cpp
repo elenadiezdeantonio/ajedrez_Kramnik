@@ -1,6 +1,7 @@
 #include "rey.h"
 #include <cmath>
-Rey::Rey(Color color, Posicion pos) : Pieza(color, pos) {}
+using namespace std;
+Rey::Rey(Color color, Posicion pos) : Pieza(color, pos, t_Pieza::REY) {}
 char Rey::getSimbolo()const {
 	if (color == Color::BLANCO) {
 		return 'R';
@@ -18,3 +19,5 @@ int Rey::getValor() const
 {
 	return 1000; // Muy alto para evitar que el bot lo exponga
 }
+
+

@@ -1,6 +1,7 @@
 #include "caballo.h"
 #include <cmath>
-Caballo::Caballo(Color color, Posicion pos) : Pieza(color, pos) {}
+
+Caballo::Caballo(Color color, Posicion pos) : Pieza(color, pos, t_Pieza::CABALLO) {}
 
 char Caballo::getSimbolo() const {
     if (color == Color::BLANCO) {

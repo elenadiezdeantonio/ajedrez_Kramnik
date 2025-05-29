@@ -1,7 +1,9 @@
 #include "reina.h"
 #include "Tablero.h"
 #include <cmath>
-Reina::Reina(Color color, Posicion pos) : Pieza(color, pos) {}
+
+Reina::Reina(Color color, Posicion pos): Pieza(color, pos, t_Pieza::REINA) {}
+
 char Reina::getSimbolo()const {
 	if (color == Color::BLANCO) {
 		return 'Q';

@@ -1,7 +1,7 @@
 #include "torre.h"
 #include "Tablero.h"
 
-Torre::Torre(Color color, Posicion pos) : Pieza(color, pos) {}
+Torre::Torre(Color color, Posicion pos) : Pieza(color, pos, t_Pieza::TORRE) {}
 
 char Torre::getSimbolo() const {
     if (color == Color::BLANCO) {
