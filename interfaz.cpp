@@ -28,12 +28,9 @@ void InterfazUsuario::mouseCallback(int button, int state, int x, int y) {
         int anchoVentana = glutGet(GLUT_WINDOW_WIDTH);
         int altoVentana = glutGet(GLUT_WINDOW_HEIGHT);
 
-        // Convertir coordenadas de píxeles a coordenadas ortográficas (0–5 en X, 0–6 en Y)
-
         float xf = (x / (float)anchoVentana) * 5.0f;
         float yf = ((altoVentana - y) / (float)altoVentana) * 6.0f;
 
-        // Botón "Sí" (mismo que en mostrarSolicitudTablas)
         if (xf >= 1.2f && xf <= 2.2f && yf >= 3.0f && yf <= 3.6f) {
             Renderizador::mensajeEstado = "¡Tablas reclamadas!";
             estadoActual = EstadoApp::FIN_PARTIDA;
@@ -41,7 +38,6 @@ void InterfazUsuario::mouseCallback(int button, int state, int x, int y) {
             return;
         }
 
-        // Botón "No"
         if (xf >= 2.8f && xf <= 3.8f && yf >= 3.0f && yf <= 3.6f) {
             estadoActual = EstadoApp::JUEGO;
             glutPostRedisplay();
@@ -62,35 +58,36 @@ void InterfazUsuario::mouseCallback(int button, int state, int x, int y) {
     }
 
     // Si estamos en el juego normal
-    // Si estamos en el juego normal
     int anchoVentana = glutGet(GLUT_WINDOW_WIDTH);
     int altoVentana = glutGet(GLUT_WINDOW_HEIGHT);
 
-    // Convertir a coordenadas OpenGL en el sistema ortográfico (-1,6)x(-1,7)
     float xOpenGL = (x / (float)anchoVentana) * 7.0f - 1.0f;
     float yOpenGL = ((altoVentana - y) / (float)altoVentana) * 8.0f - 1.0f;
 
-    // Tablero visible en (0,0) a (5,6)
     if (xOpenGL >= 0 && xOpenGL < 5 && yOpenGL >= 0 && yOpenGL < 6) {
         int col = static_cast<int>(xOpenGL);
         int fila = static_cast<int>(yOpenGL);
 
-
-        //CAMBIO PARA VER LA CASILLA SELECCIONADA
         static Posicion origen(-1, -1);
 
-        if (origen.fila == -1) {
-            origen = Posicion(fila, col);
-            Renderizador::casillaSeleccionada = origen;
-        }
-        else {
+        //DESELECIONAR CASILLA MARCADA
+        if (origen.fila != -1) {
+
+            // METODO 1 DAR CLIC EN LA MISMA CASILLA
+            if (origen.fila == fila && origen.columna == col) {
+                origen = Posicion(-1, -1);
+                Renderizador::casillaSeleccionada = Posicion(-1, -1);
+                glutPostRedisplay();
+                return;
+            }
+
+            // Intentar mover
             bool movValido = juego->jugarTurno(origen, Posicion(fila, col));
             if (movValido) {
                 origen = Posicion(-1, -1);
                 Renderizador::casillaSeleccionada = Posicion(-1, -1);
                 glutPostRedisplay();
 
-                // Verificar si debe jugar la máquina
                 if (tipoVsMaquina && juego->obtenerTurnoActual() == Color::NEGRO) {
                     if (dificultadSeleccionada == DificultadBot::NOOB)
                         juego->jugarTurnoBotNoob();
@@ -100,8 +97,27 @@ void InterfazUsuario::mouseCallback(int button, int state, int x, int y) {
                     glutPostRedisplay();
                 }
             }
+            else {
+                // METODO 2 MOVER A UNA POSICION INCORRECTA/IMPSIBLE
+                origen = Posicion(-1, -1);
+                Renderizador::casillaSeleccionada = Posicion(-1, -1);
+                glutPostRedisplay();
+            }
         }
-
+        else {
+            // Seleccionar casilla si hay una pieza del color del turno actual
+            Pieza* pieza = juego->obtenerTablero().obtenerPieza(Posicion(fila, col));
+            if (pieza && pieza->getColor() == juego->obtenerTurnoActual()) {
+                origen = Posicion(fila, col);
+                Renderizador::casillaSeleccionada = origen;
+                glutPostRedisplay();
+            }
+        }
+    }
+    else {
+        // METODO 3 HACER CLIC FUERA DEL TABLERO
+        Renderizador::casillaSeleccionada = Posicion(-1, -1);
+        glutPostRedisplay();
     }
 }
 void InterfazUsuario::keyboardCallback(unsigned char key, int x, int y) {
