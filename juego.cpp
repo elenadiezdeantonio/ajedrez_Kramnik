@@ -55,23 +55,34 @@ void Juego::iniciarPetty() {
 
 bool Juego::jugarTurno(Posicion origen, Posicion destino) {
     Pieza* pieza = tablero.obtenerPieza(origen);
+
     //VERIFICA QUE NO SE LES HAN ACABADO EL TIEMPO.
     if (estadoActual != EstadoApp::JUEGO)
         return false;
 
-      verificarTiempoAgotado();
+    verificarTiempoAgotado();
     if (estadoActual == EstadoApp::FIN_PARTIDA)
         return false;
+
+
+
     if (pieza && pieza->getColor() == turnoActual && pieza->esMovimientoValido(destino, tablero)) {
 
         // Prohibir capturar cualquier rey
         Pieza* piezaDestino = tablero.obtenerPieza(destino);
+
         if (piezaDestino) {
             //Rey* reyDestino = dynamic_cast<Rey*>(piezaDestino);
             if (piezaDestino->getTipo() == t_Pieza::REY) {
-                cout << "\nMovimiento invalido: No puedes capturar un rey!\n";
+                cout << "\nMovimiento invalido: ¡No puedes capturar un rey!\n";
                 return false;
+
+
             }
+
+
+
+
         }
 
         // Simulamos el movimiento
@@ -86,12 +97,21 @@ bool Juego::jugarTurno(Posicion origen, Posicion destino) {
             tablero.moverPiezaSimulacion(destino, origen);
             tablero.colocarPieza(piezaDestino, destino);
 
-            cout << "\nMovimiento invalido: Debes salir del jaque!\n";
+            cout << "\nMovimiento invalido: ¡Debes salir del jaque!\n";
             return false;
         }
 
         // Movimiento válido confirmado: ahora mover pieza real
         tablero.moverPiezaSimulacion(origen, destino);
+
+        //GUARDA LA PIEZA CAPTURADA
+        if (piezaDestino) {
+            if (turnoActual == Color::BLANCO)
+                piezasCapturadasPorBlancas.push_back(piezaDestino);
+            else
+                piezasCapturadasPorNegras.push_back(piezaDestino);
+        }
+
 
         // Actualizamos contador de movimientos sin captura ni movimiento de peón
         //bool muevePeon = dynamic_cast<Peon*>(pieza) != nullptr;
@@ -113,15 +133,15 @@ bool Juego::jugarTurno(Posicion origen, Posicion destino) {
         registrarEstadoTablero();
         verificarCondicionesDeTablas(vsMaquina);
         if (esJaqueMate(turnoActual)) {
-            Renderizador::mensajeEstado = "Jaque mate! Ganan " + (turnoActual == Color::BLANCO ? string("negras") : string("blancas"));
+            Renderizador::mensajeEstado = "¡Jaque mate! Ganan " + (turnoActual == Color::BLANCO ? string("negras") : string("blancas"));
             estadoActual = EstadoApp::FIN_PARTIDA;
         }
         else if (estaAhogado(turnoActual)) {
-            Renderizador::mensajeEstado = "Empate por ahogado!";
+            Renderizador::mensajeEstado = "¡Empate por ahogado!";
             estadoActual = EstadoApp::FIN_PARTIDA;
         }
         else if (!tieneMaterialSuficiente()) {
-            Renderizador::mensajeEstado = "Empate por material insuficiente!";
+            Renderizador::mensajeEstado = "¡Empate por material insuficiente!";
             estadoActual = EstadoApp::FIN_PARTIDA;
         }
 
@@ -129,6 +149,8 @@ bool Juego::jugarTurno(Posicion origen, Posicion destino) {
         return true;
     }
     return false;
+
+
 }
 
 
@@ -461,6 +483,12 @@ bool Juego::jugarTurnoBotNoob() {
     else {
         movimientosSinCapturaNiPeon++;
     }
+    if (piezaCapturada) {
+        if (turnoActual == Color::BLANCO)
+            piezasCapturadasPorBlancas.push_back(piezaCapturada);
+        else
+            piezasCapturadasPorNegras.push_back(piezaCapturada);
+    }
 
     // Verifica si el peón debe coronarse
     Pieza* piezaMovida = tablero.obtenerPieza(destino);
@@ -588,6 +616,14 @@ bool Juego::jugarTurnoBotMid() {
     else {
         movimientosSinCapturaNiPeon++;
     }
+
+    if (piezaCapturada) {
+        if (turnoActual == Color::BLANCO)
+            piezasCapturadasPorBlancas.push_back(piezaCapturada);
+        else
+            piezasCapturadasPorNegras.push_back(piezaCapturada);
+    }
+
 
     // Verifica si el peón debe coronarse
     Pieza* piezaMovida = tablero.obtenerPieza(destino);

@@ -26,8 +26,7 @@ public:
     static void establecerTablero(Tablero* t);
     static void dibujar();
     static void dibujarCasilla(int fila, int col);
-    static void dibujarPieza(Pieza* pieza, int fila, int col);
-
+    static void dibujarPieza(Pieza* pieza, float fila, float col, float escala);
     static void manejarMouse(int boton, int estado, int x, int y);
     static void mostrarMenu();
     static void mostrarSeleccionModo();

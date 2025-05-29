@@ -1,14 +1,16 @@
 #pragma once
+#include <vector>
 #include "tablero.h"
 #include "color.h"
 #include <map>
 #include <string>
-#include <vector>
+
 #include <cstdlib>
 #include <ctime>
 #include "renderizador.h"
 #include "freeglut.h"
 #include <chrono>
+
 class Juego {
 private:
     Tablero tablero;
@@ -48,6 +50,12 @@ public:
     int obtenerTiempoBlanco() const;
     int obtenerTiempoNegro() const;
     void verificarTiempoAgotado();
+
+    //VECTOR QUE ALMACENA LAS PIEZAS ELIMINADAS
+
+    std::vector <Pieza*> piezasCapturadasPorBlancas;
+    std::vector <Pieza*> piezasCapturadasPorNegras;
+    
 };
 
 

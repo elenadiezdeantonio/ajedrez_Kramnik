@@ -69,6 +69,42 @@ void Renderizador::establecerTablero(Tablero* t) {
     tablero = t;
 }
 
+void Renderizador::dibujarPieza(Pieza* pieza, float fila, float col, float escala) {
+    if (!pieza) return;
+
+    std::string clave = "";
+    clave += pieza->getSimbolo();  // Ej: 'P', 'R', 'A', etc.
+    clave += "_";
+    clave += (pieza->getColor() == Color::BLANCO ? "B" : "N");
+
+    GLuint textura = texturasPiezas[clave];
+    if (textura == 0) return;
+
+    float x = col;
+    float y = fila;
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textura);
+
+    if (alphaTablero < 0.7f)
+    {
+        glColor4f(1.0f, 1.0f, 1.0f, alphaTablero);  // Usar alpha actual
+    }
+    else {
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);  // Usar alpha actual
+    }
+
+    //SEA AÑADE UNA ESCALA PARA QUE SE VEAN LAS PIEZAS ELIMINADAS
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 0.0f); glVertex2f(x, y);
+    glTexCoord2f(1.0f, 0.0f); glVertex2f(x + escala, y);
+    glTexCoord2f(1.0f, 1.0f); glVertex2f(x + escala, y + escala);
+    glTexCoord2f(0.0f, 1.0f); glVertex2f(x, y + escala);
+    glEnd();
+
+    glDisable(GL_TEXTURE_2D);
+}
+
 void Renderizador::dibujar() {
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -99,6 +135,8 @@ void Renderizador::dibujar() {
     case EstadoApp::SOLICITUD_TABLAS:
         mostrarSolicitudTablas(Renderizador::mensajeEstado);
         break;
+    
+
     case EstadoApp::JUEGO:
 
 
@@ -121,23 +159,55 @@ void Renderizador::dibujar() {
                 glDisable(GL_TEXTURE_2D);
             }
 
-            ///
+
+            // DIBUJAR TEMPORIZADOR
+
+
+            if (juego && (tipoVsMaquina == false)) {
+
+                dibujarTemporizador();
+            }
 
             for (int fila = 0; fila < 6; ++fila)
                 for (int col = 0; col < 5; ++col) {
+                    float escala = 1;
                     dibujarCasilla(fila, col);
                     Pieza* pieza = tablero->obtenerPieza(Posicion(fila, col));
                     if (pieza)
-                        dibujarPieza(pieza, fila, col);
+                        dibujarPieza(pieza, fila, col, escala);
                 }
+
+            //BIBUJO DE PIEZAS ELIMINADAS DE MENOR TAMAÑO
+            if (juego) {
+                float escala = 0.7f;
+                float espacio = escala - 0.05f;
+
+                // Piezas eliminadas por negras (es decir, blancas capturadas)
+                for (size_t i = 0; i < juego->piezasCapturadasPorNegras.size(); ++i) {
+                    Pieza* pieza = juego->piezasCapturadasPorNegras[i];
+                    float x = -0.7f + i * espacio;  // más juntas
+                    float y = 6.5f; // parte superior
+                    dibujarPieza(pieza, y - 0.5, x, escala);
+                }
+
+                // Piezas eliminadas por blancas (es decir, negras capturadas)
+                for (size_t i = 0; i < juego->piezasCapturadasPorBlancas.size(); ++i) {
+                    Pieza* pieza = juego->piezasCapturadasPorBlancas[i];
+                    float x = -0.7f + i * espacio;
+                    float y = -0.8f; // parte inferior
+                    dibujarPieza(pieza, y, x, escala);
+                }
+            }
         }
+
+
         break;
+
 
     }
 
-
-
     glutSwapBuffers();
+    glutPostRedisplay();
 }
 
 
@@ -158,41 +228,6 @@ void Renderizador::dibujarCasilla(int fila, int col) {
     glEnd();
 }
 
-void Renderizador::dibujarPieza(Pieza* pieza, int fila, int col) {
-    if (!pieza) return;
-
-    std::string clave = "";
-    clave += pieza->getSimbolo();  // Ej: 'P', 'R', 'A', etc.
-    clave += "_";
-    clave += (pieza->getColor() == Color::BLANCO ? "B" : "N");
-
-    GLuint textura = texturasPiezas[clave];
-    if (textura == 0) return;
-
-    float x = col;
-    float y = fila;
-
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textura);
-
-
-    if (alphaTablero < 0.7f)
-    {
-        glColor4f(1.0f, 1.0f, 1.0f, alphaTablero);  // Usar alpha actual
-    }
-    else {
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);  // Usar alpha actual
-    }
-
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f); glVertex2f(x, y);
-    glTexCoord2f(1.0f, 0.0f); glVertex2f(x + 1, y);
-    glTexCoord2f(1.0f, 1.0f); glVertex2f(x + 1, y + 1);
-    glTexCoord2f(0.0f, 1.0f); glVertex2f(x, y + 1);
-    glEnd();
-
-    glDisable(GL_TEXTURE_2D);
-}
 
 
 void Renderizador::mostrarMenu() {
@@ -550,6 +585,8 @@ void Renderizador::mostrarSolicitudTablas(const std::string& mensajeEstado) {
 
 
 std::string Renderizador::obtenerNombreArchivo(const std::string& clave) {
+
+    //PIEZAS NORMALES
     if (estiloActual == EstiloVisual::NORMAL) {
         if (clave == "P_B") return "P_B.png";
         if (clave == "p_N") return "p_N.png";
@@ -564,28 +601,30 @@ std::string Renderizador::obtenerNombreArchivo(const std::string& clave) {
         if (clave == "R_B") return "R_B.png";
         if (clave == "r_N") return "r_N.png";
     }
+    //PIEZAS BARAJA ESPAÑOLA
     else if (estiloActual == EstiloVisual::BARAJA) {
 
 
         texturaFondo = cargarTextura("fondos/fondos_baraja.png"); // Ruta al fondo de la baraja
 
 
-        if (clave == "P_B") return "PEON_DE_COPAS.png";   // ← PEÓN blanco en estilo Star Wars
-        if (clave == "p_N") return "PEON_DE_OROS.png";    // ← PEÓN negro
-        if (clave == "T_B") return "TORRE_DE_COPAS.png";            // ← TORRE blanca
-        if (clave == "t_N") return "TORRE_DE_OROS.png";      // ← TORRE negra
-        if (clave == "C_B") return "CABALLO_DE_COPAS.png";        // ← CABALLO blanco
-        if (clave == "c_N") return "CABALLO_DE_OROS.png";            // ← CABALLO negro
-        if (clave == "A_B") return "ALFIL_DE_COPAS.png";             // ← ALFIL blanco
-        if (clave == "a_N") return "ALFIL_DE_OROS.png";        // ← ALFIL negro
-        if (clave == "Q_B") return "REINA_DE_COPAS.png";              // ← REINA blanca
-        if (clave == "q_N") return "REINA_DE_OROS.png";         // ← REINA negra
-        if (clave == "R_B") return "REY_DE_COPAS.png";             // ← REY blanco
-        if (clave == "r_N") return "REY_DE_OROS.png";            // ← REY negro
+        if (clave == "P_B") return "PEON_DE_COPAS.png";   // PEÓN blanco 
+        if (clave == "p_N") return "PEON_DE_OROS.png";    //  PEÓN negro
+        if (clave == "T_B") return "TORRE_DE_COPAS.png";            //  TORRE blanca
+        if (clave == "t_N") return "TORRE_DE_OROS.png";      //  TORRE negra
+        if (clave == "C_B") return "CABALLO_DE_COPAS.png";        // CABALLO blanco
+        if (clave == "c_N") return "CABALLO_DE_OROS.png";            //  CABALLO negro
+        if (clave == "A_B") return "ALFIL_DE_COPAS.png";             //  ALFIL blanco
+        if (clave == "a_N") return "ALFIL_DE_OROS.png";        //  ALFIL negro
+        if (clave == "Q_B") return "REINA_DE_COPAS.png";              //  REINA blanca
+        if (clave == "q_N") return "REINA_DE_OROS.png";         //  REINA negra
+        if (clave == "R_B") return "REY_DE_COPAS.png";             //  REY blanco
+        if (clave == "r_N") return "REY_DE_OROS.png";            //  REY negro
     }
 
     return ""; // En caso de error
 }
+
 
 void Renderizador::cargarTexturasPiezas() {
     texturasPiezas.clear();
@@ -621,25 +660,16 @@ void Renderizador::cargarTexturasPiezas() {
 }
 
 
-//METODO PARA QUE EL TABLERO Y LAS PIEZAS APAREZCAN GRADUALMENTE
-void Renderizador::actualizarAlpha(int valor) {
-    if (alphaTablero < 0.7f) {
-        alphaTablero += 0.05f;
-        if (alphaTablero > 0.7f) alphaTablero = 0.7f;
-        glutPostRedisplay();
-        glutTimerFunc(30, actualizarAlpha, 0);  // Llama otra vez en 30ms
-    }
-}
-
-
 void Renderizador::mostrarSeleccionEstilo() {
+
+    //MENU DE SELECCION DEL ESTILO DE LAS PIEZAS
     glColor3f(0, 0, 0);
     glRasterPos2f(1.2f, 5.0f);
     const char* titulo = "Selecciona el estilo de piezas:";
     for (const char* c = titulo; *c; ++c)
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
 
-    // Botón Normal
+    // BOTON NORMAL, PIEZAS NORMLAES
     glColor3f(0.2f, 0.6f, 0.9f);
     glBegin(GL_QUADS);
     glVertex2f(1.0f, 3.0f);
@@ -648,13 +678,14 @@ void Renderizador::mostrarSeleccionEstilo() {
     glVertex2f(1.0f, 3.5f);
     glEnd();
 
+
     glColor3f(1, 1, 1);
     glRasterPos2f(1.7f, 3.2f);
     const char* textoNormal = "Estilo Normal";
     for (const char* c = textoNormal; *c; ++c)
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
 
-    // Botón BARAJA ESPAÑOLA
+    // BOTON BARAJA ESPAÑOLA
     glColor3f(0.7f, 0.2f, 0.2f);
     glBegin(GL_QUADS);
     glVertex2f(1.0f, 2.0f);
@@ -665,7 +696,7 @@ void Renderizador::mostrarSeleccionEstilo() {
 
     glColor3f(1, 1, 1);
     glRasterPos2f(1.6f, 2.2f);
-    const char* textoSW = "Estilo Baraja Española";
+    const char* textoSW = "Estilo Baraja Espanola";
     for (const char* c = textoSW; *c; ++c)
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
 }
@@ -678,6 +709,25 @@ void Renderizador::setEstadoActual(EstadoApp nuevoEstado) {
 EstadoApp Renderizador::getEstadoActual() {
     return estadoActual;
 }
+
+//METODO PARA QUE EL TABLERO Y LAS PIEZAS APAREZCAN GRADUALMENTE
+void Renderizador::actualizarAlpha(int valor) {
+    if (alphaTablero < 0.7f) {
+        alphaTablero += 0.05f;
+        if (alphaTablero > 0.7f) alphaTablero = 0.7f;
+        glutPostRedisplay();
+        glutTimerFunc(30, actualizarAlpha, 0);  // Llama otra vez en 30ms
+    }
+}
+
+
+
+
+
+
+
+
+
 //TEMPORIZADOR PARA MODO PERSONA VS PERSONA, YA NO APARECE EN MQUINA VS PERSONA
 void Renderizador::dibujarTemporizador() {
     if (!juego) return;
