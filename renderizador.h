@@ -59,5 +59,5 @@ public:
  
     static void actualizarAlpha(int);
 
-
+    static void dibujarTemporizador();
 };

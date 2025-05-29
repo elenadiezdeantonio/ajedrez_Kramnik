@@ -678,3 +678,41 @@ void Renderizador::setEstadoActual(EstadoApp nuevoEstado) {
 EstadoApp Renderizador::getEstadoActual() {
     return estadoActual;
 }
+//TEMPORIZADOR PARA MODO PERSONA VS PERSONA, YA NO APARECE EN MQUINA VS PERSONA
+void Renderizador::dibujarTemporizador() {
+    if (!juego) return;
+
+    int tB = juego->obtenerTiempoBlanco();
+    int tN = juego->obtenerTiempoNegro();
+
+    std::string textoB = "Blancas: " + std::to_string(tB) + "s";
+    std::string textoN = "Negras: " + std::to_string(tN) + "s";
+
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glRasterPos2f(0.5f, 6.7f);
+    for (char c : textoB) glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
+
+    glRasterPos2f(3.0f, 6.7f);
+    for (char c : textoN) glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
+}
+// CALCULO DE TIEMPO PARA NEGRAS Y BLAMCAS
+
+
+int Juego::obtenerTiempoBlanco() const {
+
+    if ((turnoActual == Color::BLANCO) && (estadoActual == EstadoApp::JUEGO)) {
+        auto ahora = std::chrono::steady_clock::now();
+        int pasado = std::chrono::duration_cast<std::chrono::seconds>(ahora - inicioTurno).count();
+        return std::max(0, tiempoBlanco - pasado);
+    }
+    return tiempoBlanco;
+}
+
+int Juego::obtenerTiempoNegro() const {
+    if ((turnoActual == Color::NEGRO) && (estadoActual == EstadoApp::JUEGO)) {
+        auto ahora = std::chrono::steady_clock::now();
+        int pasado = std::chrono::duration_cast<std::chrono::seconds>(ahora - inicioTurno).count();
+        return std::max(0, tiempoNegro - pasado);
+    }
+    return tiempoNegro;
+}

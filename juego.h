@@ -8,6 +8,7 @@
 #include <ctime>
 #include "renderizador.h"
 #include "freeglut.h"
+#include <chrono>
 class Juego {
 private:
     Tablero tablero;
@@ -18,6 +19,10 @@ private:
     bool enCoronacion = false;
     Posicion posicionCoronacion;
     bool vsMaquina = false;
+    //TEMPORIZAODRES
+    int tiempoBlanco;
+    int tiempoNegro;
+    std::chrono::time_point<std::chrono::steady_clock> inicioTurno;
 public:
     Juego();
     bool jugarTurno(Posicion origen, Posicion destino);
@@ -40,6 +45,9 @@ public:
     void verificarCoronacion(const Posicion& destino);
     void coronarPeonConTecla(char tecla);
     void verificarCondicionesDeTablas(bool vsMaquina);
+    int obtenerTiempoBlanco() const;
+    int obtenerTiempoNegro() const;
+    void verificarTiempoAgotado();
 };
 
 

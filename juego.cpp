@@ -10,7 +10,10 @@
 #include <iostream>
 using namespace std;
 
-Juego::Juego() : turnoActual(Color::BLANCO) {}
+Juego::Juego() : turnoActual(Color::BLANCO), tiempoBlanco(300), tiempoNegro(300) {
+
+
+}
 
 void Juego::iniciar5x6() {
     for (int col = 0; col < MAXC; ++col) {
@@ -52,6 +55,13 @@ void Juego::iniciarPetty() {
 
 bool Juego::jugarTurno(Posicion origen, Posicion destino) {
     Pieza* pieza = tablero.obtenerPieza(origen);
+    //VERIFICA QUE NO SE LES HAN ACABADO EL TIEMPO.
+    if (estadoActual != EstadoApp::JUEGO)
+        return false;
+
+      verificarTiempoAgotado();
+    if (estadoActual == EstadoApp::FIN_PARTIDA)
+        return false;
     if (pieza && pieza->getColor() == turnoActual && pieza->esMovimientoValido(destino, tablero)) {
 
         // Prohibir capturar cualquier rey
@@ -132,12 +142,19 @@ Color Juego::obtenerTurnoActual() const {
 }
 
 void Juego::cambiarTurno() {
+    auto ahora = std::chrono::steady_clock::now();
+    int tiempoPasado = std::chrono::duration_cast<std::chrono::seconds>(ahora - inicioTurno).count();
+
     if (turnoActual == Color::BLANCO) {
+        tiempoBlanco -= tiempoPasado;
         turnoActual = Color::NEGRO;
     }
     else {
+        tiempoNegro -= tiempoPasado;
         turnoActual = Color::BLANCO;
     }
+
+    inicioTurno = std::chrono::steady_clock::now();
 }
 bool Juego::estaEnJaque(Color color) {
     Posicion reyPos;
@@ -173,7 +190,6 @@ bool Juego::estaEnJaque(Color color) {
 
     return false;
 }
-
 bool Juego::esJaqueMate(Color color) {
     // Para cada pieza del color dado
     for (int fila = 0; fila < MAXF; ++fila) {
@@ -672,5 +688,28 @@ void Juego::verificarCondicionesDeTablas(bool vsMaquina) {
 
         estadoActual = EstadoApp::SOLICITUD_TABLAS;
         glutPostRedisplay();
+    }
+}
+void Juego::verificarTiempoAgotado() {
+
+    if ((tipoVsMaquina == false)) {
+        auto ahora = std::chrono::steady_clock::now();
+        int tiempoPasado = std::chrono::duration_cast<std::chrono::seconds>(ahora - inicioTurno).count();
+
+        if (turnoActual == Color::BLANCO) {
+            if (tiempoBlanco - tiempoPasado <= 0) {
+                tiempoBlanco = 0;
+                Renderizador::mensajeEstado = "¡Tiempo agotado! Ganan negras.";
+                estadoActual = EstadoApp::FIN_PARTIDA;
+            }
+        }
+        else {
+            if (tiempoNegro - tiempoPasado <= 0) {
+                tiempoNegro = 0;
+                Renderizador::mensajeEstado = "¡Tiempo agotado! Ganan blancas.";
+                estadoActual = EstadoApp::FIN_PARTIDA;
+            }
+        }
+
     }
 }
