@@ -54,7 +54,8 @@ void InterfazUsuario::mouseCallback(int button, int state, int x, int y) {
     if (estado == EstadoApp::MENU_PRINCIPAL ||
         estado == EstadoApp::SELECCION_MODO ||
         estado == EstadoApp::SELECCION_TIPO_JUEGO ||
-        estado == EstadoApp::SELECCION_DIFICULTAD) {
+        estado == EstadoApp::SELECCION_DIFICULTAD ||
+        estado == EstadoApp::SELECCION_ESTILO) {
         Renderizador::manejarMouse(button, state, x, y);
         return;
     }
@@ -90,7 +91,6 @@ void InterfazUsuario::mouseCallback(int button, int state, int x, int y) {
         }
     }
 }
-
 void InterfazUsuario::keyboardCallback(unsigned char key, int x, int y) {
     // Si estamos en pantalla de coronación
     if (estadoActual == EstadoApp::CORONACION_PEON) {

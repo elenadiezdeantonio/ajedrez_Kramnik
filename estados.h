@@ -7,7 +7,8 @@ enum class EstadoApp {
     JUEGO,
     FIN_PARTIDA,
     CORONACION_PEON,
-    SOLICITUD_TABLAS
+    SOLICITUD_TABLAS,
+    SELECCION_ESTILO
 };
 
 extern EstadoApp estadoActual;

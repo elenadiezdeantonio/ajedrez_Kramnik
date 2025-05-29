@@ -1,7 +1,7 @@
 #include "peon.h"
 #include "tablero.h"
 
-Peon::Peon(Color color, Posicion pos) : Pieza(color, pos) {}
+Peon::Peon(Color color, Posicion pos) : Pieza(color, pos, t_Pieza::PEON) {}
 
 char Peon::getSimbolo() const {
     if (color == Color::BLANCO) {

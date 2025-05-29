@@ -1,4 +1,4 @@
-#include "renderizador.h"
+﻿#include "renderizador.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -11,6 +11,13 @@ DificultadBot dificultadSeleccionada = DificultadBot::NOOB;
 std::map<std::string, GLuint> Renderizador::texturasPiezas;
 
 std::string Renderizador::mensajeEstado = "";
+
+GLuint Renderizador::texturaFondo = 0;
+EstiloVisual Renderizador::estiloActual = EstiloVisual::NORMAL;
+
+
+
+
 
 GLuint cargarTextura(const std::string& ruta) {
     int ancho, alto, canales;
@@ -32,20 +39,6 @@ GLuint cargarTextura(const std::string& ruta) {
     return texturaID;
 }
 
-void Renderizador::cargarTexturasPiezas() {
-    texturasPiezas["R_B"] = cargarTextura("imagenes/R_B.png");
-    texturasPiezas["r_N"] = cargarTextura("imagenes/r_N.png");
-    texturasPiezas["Q_B"] = cargarTextura("imagenes/Q_B.png");
-    texturasPiezas["q_N"] = cargarTextura("imagenes/q_N.png");
-    texturasPiezas["A_B"] = cargarTextura("imagenes/A_B.png");
-    texturasPiezas["a_N"] = cargarTextura("imagenes/a_N.png");
-    texturasPiezas["C_B"] = cargarTextura("imagenes/C_B.png");
-    texturasPiezas["c_N"] = cargarTextura("imagenes/c_N.png");
-    texturasPiezas["T_B"] = cargarTextura("imagenes/T_B.png");
-    texturasPiezas["t_N"] = cargarTextura("imagenes/t_N.png");
-    texturasPiezas["P_B"] = cargarTextura("imagenes/P_B.png");
-    texturasPiezas["p_N"] = cargarTextura("imagenes/p_N.png");
-}
 
 void Renderizador::establecerJuego(Juego* j) {
     juego = j;
@@ -76,6 +69,11 @@ void Renderizador::dibujar() {
     case EstadoApp::MENU_PRINCIPAL:
         mostrarMenu();
         break;
+        //mio
+    case EstadoApp::SELECCION_ESTILO:
+        mostrarSeleccionEstilo();
+        break;
+        //
     case EstadoApp::SELECCION_MODO:
         mostrarSeleccionModo();
         break;
@@ -95,7 +93,27 @@ void Renderizador::dibujar() {
         mostrarSolicitudTablas(Renderizador::mensajeEstado);
         break;
     case EstadoApp::JUEGO:
+
+
         if (tablero) {
+
+            //MIO PARA FONDO
+            if (texturaFondo != 0) {
+                glEnable(GL_TEXTURE_2D);
+                glBindTexture(GL_TEXTURE_2D, texturaFondo);
+                glColor3f(1.0f, 1.0f, 1.0f);
+
+                glBegin(GL_QUADS);
+                glTexCoord2f(0.0f, 0.0f); glVertex2f(0, 0);
+                glTexCoord2f(1.0f, 0.0f); glVertex2f(5, 0);
+                glTexCoord2f(1.0f, 1.0f); glVertex2f(5, 6);
+                glTexCoord2f(0.0f, 1.0f); glVertex2f(0, 6);
+                glEnd();
+
+                glDisable(GL_TEXTURE_2D);
+            }
+            ///
+
             for (int fila = 0; fila < 6; ++fila)
                 for (int col = 0; col < 5; ++col) {
                     dibujarCasilla(fila, col);
@@ -107,6 +125,8 @@ void Renderizador::dibujar() {
         break;
 
     }
+
+
 
     glutSwapBuffers();
 }
@@ -144,7 +164,7 @@ void Renderizador::dibujarPieza(Pieza* pieza, int fila, int col) {
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, textura);
 
-    glColor3f(1.0f, 1.0f, 1.0f); // blanco para no te�ir la textura
+    glColor3f(1.0f, 1.0f, 1.0f); // blanco para no teñir la textura
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 0.0f); glVertex2f(x, y);
     glTexCoord2f(1.0f, 0.0f); glVertex2f(x + 1, y);
@@ -163,7 +183,7 @@ void Renderizador::mostrarMenu() {
     for (const char* c = titulo; *c; ++c)
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
 
-    glColor3f(0.2f, 0.6f, 0.9f); // Color del bot�n
+    glColor3f(0.2f, 0.6f, 0.9f); // Color del botón
     glBegin(GL_POLYGON);
     glVertex2f(2, 2);
     glVertex2f(3, 2);
@@ -196,21 +216,21 @@ void Renderizador::manejarMouse(int boton, int estado, int x, int y) {
     float yOpenGL = (alto - y) * 6.0f / alto;
 
     if (estadoActual == EstadoApp::MENU_PRINCIPAL) {
-        // Bot�n PLAY
+        // Botón PLAY
         if (xOpenGL >= 2 && xOpenGL <= 3 && yOpenGL >= 2 && yOpenGL <= 2.5) {
-            estadoActual = EstadoApp::SELECCION_MODO;
+            estadoActual = EstadoApp::SELECCION_ESTILO;
             glutPostRedisplay();
         }
     }
 
     else if (estadoActual == EstadoApp::SELECCION_MODO) {
-        // Bot�n Modo 5x6
+        // Botón Modo 5x6
         if (xOpenGL >= 1 && xOpenGL <= 4 && yOpenGL >= 3 && yOpenGL <= 3.5) {
             modoSeleccionado = ModoJuego::MODO_5x6;
             estadoActual = EstadoApp::SELECCION_TIPO_JUEGO;
             glutPostRedisplay();
         }
-        // Bot�n Modo Petty
+        // Botón Modo Petty
         else if (xOpenGL >= 1 && xOpenGL <= 4 && yOpenGL >= 2 && yOpenGL <= 2.5) {
             modoSeleccionado = ModoJuego::MODO_PETTY;
             estadoActual = EstadoApp::SELECCION_TIPO_JUEGO;
@@ -246,6 +266,25 @@ void Renderizador::manejarMouse(int boton, int estado, int x, int y) {
             glutPostRedisplay();
         }
     }
+    else if (estadoActual == EstadoApp::SELECCION_ESTILO) {
+        if (xOpenGL >= 1.0f && xOpenGL <= 4.0f) {
+            if (yOpenGL >= 3.0f && yOpenGL <= 3.5f) {
+                estiloActual = EstiloVisual::NORMAL;
+                cargarTexturasPiezas();              // Cargar el estilo elegido
+                estadoActual = EstadoApp::SELECCION_MODO;  // Ir al menú principal
+                glutPostRedisplay();
+            }
+            else if (yOpenGL >= 2.0f && yOpenGL <= 2.5f) {
+                estiloActual = EstiloVisual::BARAJA;
+                cargarTexturasPiezas();              // Cargar el estilo elegido
+                estadoActual = EstadoApp::SELECCION_MODO;  // Ir al menú principal
+                glutPostRedisplay();
+            }
+
+
+        }
+    }
+
 
 }
 
@@ -257,7 +296,7 @@ void Renderizador::mostrarSeleccionModo() {
     for (const char* c = texto; *c; ++c)
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
 
-    // Bot�n Modo 5x6
+    // Botón Modo 5x6
     glColor3f(0.4f, 0.7f, 0.2f);
     glBegin(GL_POLYGON);
     glVertex2f(1, 3);
@@ -272,7 +311,7 @@ void Renderizador::mostrarSeleccionModo() {
     for (const char* c = texto5x6; *c; ++c)
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
 
-    // Bot�n Modo Petty
+    // Botón Modo Petty
     glColor3f(0.8f, 0.3f, 0.3f);
     glBegin(GL_POLYGON);
     glVertex2f(1, 2);
@@ -295,7 +334,7 @@ void Renderizador::mostrarSeleccionTipoJuego() {
     for (const char* c = texto; *c; ++c)
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
 
-    // Bot�n Persona vs Persona
+    // Botón Persona vs Persona
     glColor3f(0.2f, 0.6f, 0.9f);
     glBegin(GL_POLYGON);
     glVertex2f(1, 3);
@@ -310,7 +349,7 @@ void Renderizador::mostrarSeleccionTipoJuego() {
     for (const char* c = pvp; *c; ++c)
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
 
-    // Bot�n Persona vs M�quina
+    // Botón Persona vs Máquina
     glColor3f(0.2f, 0.6f, 0.2f);
     glBegin(GL_POLYGON);
     glVertex2f(1, 2);
@@ -333,7 +372,7 @@ void Renderizador::mostrarSeleccionDificultad() {
     for (const char* c = titulo; *c != '\0'; ++c)
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
 
-    // Bot�n NOOB
+    // Botón NOOB
     glColor3f(0.2f, 0.6f, 0.2f); // Verde
     glBegin(GL_QUADS);
     glVertex2f(1.0f, 3.0f);
@@ -348,7 +387,7 @@ void Renderizador::mostrarSeleccionDificultad() {
     for (const char* c = textoNoob; *c != '\0'; ++c)
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
 
-    // Bot�n MID
+    // Botón MID
     glColor3f(0.6f, 0.2f, 0.2f); // Rojo oscuro
     glBegin(GL_QUADS);
     glVertex2f(1.0f, 2.0f);
@@ -373,7 +412,7 @@ void Renderizador::iniciarJuegoSegunModo() {
     else
         juego->iniciarPetty();
 
-    // Si es contra m�quina y el turno actual es del bot (por ejemplo, siempre negras)
+    // Si es contra máquina y el turno actual es del bot (por ejemplo, siempre negras)
     if (tipoVsMaquina && juego->obtenerTurnoActual() == Color::NEGRO) {
         if (dificultadSeleccionada == DificultadBot::NOOB)
             juego->jugarTurnoBotNoob();
@@ -413,7 +452,7 @@ void Renderizador::mostrarOpcionesCoronacion() {
 
     // Primer mensaje
     glRasterPos2f(1.2f, 3.2f);
-    std::string mensaje = "�Peon ha llegado al final!";
+    std::string mensaje = "¡Peon ha llegado al final!";
     for (char c : mensaje)
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
 
@@ -429,7 +468,7 @@ void Renderizador::mostrarSolicitudTablas(const std::string& mensajeEstado) {
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);  // Fondo blanco
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Establecer sistema de coordenadas ortogr�ficas
+    // Establecer sistema de coordenadas ortográficas
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluOrtho2D(0, 5, 0, 6);  // Mismo sistema que mostrarMenu
@@ -439,9 +478,9 @@ void Renderizador::mostrarSolicitudTablas(const std::string& mensajeEstado) {
 
     glColor3f(0.0f, 0.0f, 0.0f);  // Texto negro
 
-    // T�tulo
+    // Título
     glRasterPos2f(1.2f, 5.0f);
-    std::string linea1 = "�Deseas reclamar tablas?";
+    std::string linea1 = "¿Deseas reclamar tablas?";
     for (char c : linea1)
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
 
@@ -450,7 +489,7 @@ void Renderizador::mostrarSolicitudTablas(const std::string& mensajeEstado) {
     for (char c : mensajeEstado)
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
 
-    // Botones: S� y NO
+    // Botones: SÍ y NO
 
     float x_si1 = 1.2f, y_si1 = 3.0f;
     float x_si2 = 2.2f, y_si2 = 3.6f;
@@ -461,14 +500,14 @@ void Renderizador::mostrarSolicitudTablas(const std::string& mensajeEstado) {
     // Dibujar botones
     glColor3f(0.8f, 0.8f, 0.8f); // gris claro
 
-    glBegin(GL_QUADS); // Bot�n S�
+    glBegin(GL_QUADS); // Botón Sí
     glVertex2f(x_si1, y_si1);
     glVertex2f(x_si2, y_si1);
     glVertex2f(x_si2, y_si2);
     glVertex2f(x_si1, y_si2);
     glEnd();
 
-    glBegin(GL_QUADS); // Bot�n No
+    glBegin(GL_QUADS); // Botón No
     glVertex2f(x_no1, y_no1);
     glVertex2f(x_no2, y_no1);
     glVertex2f(x_no2, y_no2);
@@ -485,4 +524,118 @@ void Renderizador::mostrarSolicitudTablas(const std::string& mensajeEstado) {
     glRasterPos2f(3.15f, 3.25f);
     for (char c : std::string("No"))
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
+}
+
+
+std::string Renderizador::obtenerNombreArchivo(const std::string& clave) {
+    if (estiloActual == EstiloVisual::NORMAL) {
+        if (clave == "P_B") return "P_B.png";
+        if (clave == "p_N") return "p_N.png";
+        if (clave == "T_B") return "T_B.png";
+        if (clave == "t_N") return "t_N.png";
+        if (clave == "C_B") return "C_B.png";
+        if (clave == "c_N") return "c_N.png";
+        if (clave == "A_B") return "A_B.png";
+        if (clave == "a_N") return "a_N.png";
+        if (clave == "Q_B") return "Q_B.png";
+        if (clave == "q_N") return "q_N.png";
+        if (clave == "R_B") return "R_B.png";
+        if (clave == "r_N") return "r_N.png";
+    }
+    else if (estiloActual == EstiloVisual::BARAJA) {
+
+
+        texturaFondo = cargarTextura("fondos/fondos_baraja.png"); // Ruta al fondo de la baraja
+
+
+        if (clave == "P_B") return "PEON_DE_COPAS.png";   // ← PEÓN blanco en estilo Star Wars
+        if (clave == "p_N") return "PEON_DE_OROS.png";    // ← PEÓN negro
+        if (clave == "T_B") return "TORRE_DE_COPAS.png";            // ← TORRE blanca
+        if (clave == "t_N") return "TORRE_DE_OROS.png";      // ← TORRE negra
+        if (clave == "C_B") return "CABALLO_DE_COPAS.png";        // ← CABALLO blanco
+        if (clave == "c_N") return "CABALLO_DE_OROS.png";            // ← CABALLO negro
+        if (clave == "A_B") return "ALFIL_DE_COPAS.png";             // ← ALFIL blanco
+        if (clave == "a_N") return "ALFIL_DE_OROS.png";        // ← ALFIL negro
+        if (clave == "Q_B") return "REINA_DE_COPAS.png";              // ← REINA blanca
+        if (clave == "q_N") return "REINA_DE_OROS.png";         // ← REINA negra
+        if (clave == "R_B") return "REY_DE_COPAS.png";             // ← REY blanco
+        if (clave == "r_N") return "REY_DE_OROS.png";            // ← REY negro
+    }
+
+    return ""; // En caso de error
+}
+
+void Renderizador::cargarTexturasPiezas() {
+    texturasPiezas.clear();
+    std::string carpeta = (estiloActual == EstiloVisual::NORMAL) ? "imagenes/" : "baraja/";
+
+    std::vector<std::string> claves = {
+        "P_B", "p_N", "T_B", "t_N", "C_B", "c_N",
+        "A_B", "a_N", "Q_B", "q_N", "R_B", "r_N"
+    };
+
+    for (const auto& clave : claves) {
+        std::string archivo = obtenerNombreArchivo(clave);
+        if (!archivo.empty()) {
+            texturasPiezas[clave] = cargarTextura(carpeta + archivo);
+        }
+    }
+
+
+    //FONDO PARA BARAJA DE LA ETSIDI
+    if (estiloActual == EstiloVisual::BARAJA) {
+        texturaFondo = cargarTextura("fondos/fondos_baraja.png");
+    }
+    else {
+        texturaFondo = 0; // No usar fondo en otros estilos
+    }
+
+}
+
+
+void Renderizador::mostrarSeleccionEstilo() {
+    glColor3f(0, 0, 0);
+    glRasterPos2f(1.2f, 5.0f);
+    const char* titulo = "Selecciona el estilo de piezas:";
+    for (const char* c = titulo; *c; ++c)
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+
+    // Botón Normal
+    glColor3f(0.2f, 0.6f, 0.9f);
+    glBegin(GL_QUADS);
+    glVertex2f(1.0f, 3.0f);
+    glVertex2f(4.0f, 3.0f);
+    glVertex2f(4.0f, 3.5f);
+    glVertex2f(1.0f, 3.5f);
+    glEnd();
+
+    glColor3f(1, 1, 1);
+    glRasterPos2f(1.7f, 3.2f);
+    const char* textoNormal = "Estilo Normal";
+    for (const char* c = textoNormal; *c; ++c)
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+
+    // Botón BARAJA ESPAÑOLA
+    glColor3f(0.7f, 0.2f, 0.2f);
+    glBegin(GL_QUADS);
+    glVertex2f(1.0f, 2.0f);
+    glVertex2f(4.0f, 2.0f);
+    glVertex2f(4.0f, 2.5f);
+    glVertex2f(1.0f, 2.5f);
+    glEnd();
+
+    glColor3f(1, 1, 1);
+    glRasterPos2f(1.6f, 2.2f);
+    const char* textoSW = "Estilo Baraja Española";
+    for (const char* c = textoSW; *c; ++c)
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+}
+
+
+void Renderizador::setEstadoActual(EstadoApp nuevoEstado) {
+    estadoActual = nuevoEstado;
+}
+
+EstadoApp Renderizador::getEstadoActual() {
+    return estadoActual;
 }

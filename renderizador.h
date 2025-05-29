@@ -7,6 +7,11 @@
 #include "freeglut.h"
 
 
+enum class EstiloVisual {
+    NORMAL,
+    BARAJA,
+};
+
 class Juego;
 class Renderizador {
 private:
@@ -34,4 +39,17 @@ public:
     static void mostrarOpcionesCoronacion();
     static void mostrarSolicitudTablas(const std::string& mensajeEstado);
     static void cargarTexturasPiezas();
+
+
+    static void mostrarSeleccionEstilo();
+    static std::string obtenerNombreArchivo(const std::string& clave);
+
+    static EstiloVisual estiloActual;
+
+
+    static void setEstadoActual(EstadoApp nuevoEstado);
+    static EstadoApp getEstadoActual();
+
+    //para poner fondo a baraja
+    static GLuint texturaFondo;
 };
