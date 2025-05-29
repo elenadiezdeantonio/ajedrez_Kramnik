@@ -6,12 +6,14 @@
 #include "alfil.h"
 #include "caballo.h"
 #include "posicion.h"
+#include "Constantes.h"
 #include <iostream>
+using namespace std;
 
 Juego::Juego() : turnoActual(Color::BLANCO) {}
 
 void Juego::iniciar5x6() {
-    for (int col = 0; col < 5; ++col) {
+    for (int col = 0; col < MAXC; ++col) {
         tablero.colocarPieza(new Peon(Color::NEGRO, { 4, col }), { 4, col });
         tablero.colocarPieza(new Peon(Color::BLANCO, { 1, col }), { 1, col });
     }
@@ -30,7 +32,7 @@ void Juego::iniciar5x6() {
 }
 
 void Juego::iniciarPetty() {
-    for (int col = 0; col < 5; ++col) {
+    for (int col = 0; col < MAXC; ++col) {
         tablero.colocarPieza(new Peon(Color::NEGRO, { 4, col }), { 4, col });
         tablero.colocarPieza(new Peon(Color::BLANCO, { 1, col }), { 1, col });
     }
@@ -55,15 +57,15 @@ bool Juego::jugarTurno(Posicion origen, Posicion destino) {
         // Prohibir capturar cualquier rey
         Pieza* piezaDestino = tablero.obtenerPieza(destino);
         if (piezaDestino) {
-            Rey* reyDestino = dynamic_cast<Rey*>(piezaDestino);
-            if (reyDestino) {
-                std::cout << "\nMovimiento invalido: ¡No puedes capturar un rey!\n";
+            //Rey* reyDestino = dynamic_cast<Rey*>(piezaDestino);
+            if (piezaDestino->getTipo() == t_Pieza::REY) {
+                cout << "\nMovimiento invalido: No puedes capturar un rey!\n";
                 return false;
             }
         }
 
         // Simulamos el movimiento
-        Pieza* piezaCapturada = tablero.obtenerPieza(destino);
+        // Pieza* piezaCapturada = tablero.obtenerPieza(destino);
         tablero.moverPiezaSimulacion(origen, destino);
 
         // Verificar si después de mover sigo en jaque
@@ -72,9 +74,9 @@ bool Juego::jugarTurno(Posicion origen, Posicion destino) {
         if (sigoEnJaque) {
             // Revertimos el movimiento
             tablero.moverPiezaSimulacion(destino, origen);
-            tablero.colocarPieza(piezaCapturada, destino);
+            tablero.colocarPieza(piezaDestino, destino);
 
-            std::cout << "\nMovimiento invalido: ¡Debes salir del jaque!\n";
+            cout << "\nMovimiento invalido: Debes salir del jaque!\n";
             return false;
         }
 
@@ -82,7 +84,11 @@ bool Juego::jugarTurno(Posicion origen, Posicion destino) {
         tablero.moverPiezaSimulacion(origen, destino);
 
         // Actualizamos contador de movimientos sin captura ni movimiento de peón
-        bool muevePeon = dynamic_cast<Peon*>(pieza) != nullptr;
+        //bool muevePeon = dynamic_cast<Peon*>(pieza) != nullptr;
+        bool muevePeon = false;
+        if (pieza->getTipo() == t_Pieza::PEON)
+            muevePeon = true;
+
         bool capturaPieza = piezaDestino != nullptr;
         if (muevePeon || capturaPieza) {
             movimientosSinCapturaNiPeon = 0; // Reiniciar contador
@@ -97,15 +103,15 @@ bool Juego::jugarTurno(Posicion origen, Posicion destino) {
         registrarEstadoTablero();
         verificarCondicionesDeTablas(vsMaquina);
         if (esJaqueMate(turnoActual)) {
-            Renderizador::mensajeEstado = "¡Jaque mate! Ganan " + (turnoActual == Color::BLANCO ? std::string("negras") : std::string("blancas"));
+            Renderizador::mensajeEstado = "Jaque mate! Ganan " + (turnoActual == Color::BLANCO ? string("negras") : string("blancas"));
             estadoActual = EstadoApp::FIN_PARTIDA;
         }
         else if (estaAhogado(turnoActual)) {
-            Renderizador::mensajeEstado = "¡Empate por ahogado!";
+            Renderizador::mensajeEstado = "Empate por ahogado!";
             estadoActual = EstadoApp::FIN_PARTIDA;
         }
         else if (!tieneMaterialSuficiente()) {
-            Renderizador::mensajeEstado = "¡Empate por material insuficiente!";
+            Renderizador::mensajeEstado = "Empate por material insuficiente!";
             estadoActual = EstadoApp::FIN_PARTIDA;
         }
 
@@ -137,12 +143,13 @@ bool Juego::estaEnJaque(Color color) {
     Posicion reyPos;
 
     // Buscar al rey del color especificado
-    for (int fila = 0; fila < 6; ++fila) {
-        for (int col = 0; col < 5; ++col) {
+    //Cambiar el 6 por una cte global
+    for (int fila = 0; fila < MAXF; ++fila) {
+        for (int col = 0; col < MAXC; ++col) {
             Pieza* pieza = tablero.obtenerPieza({ fila, col });
             if (pieza && pieza->getColor() == color) {
-                Rey* rey = dynamic_cast<Rey*>(pieza);
-                if (rey) {
+                //Rey* rey = dynamic_cast<Rey*>(pieza);
+                if (pieza->getTipo() == t_Pieza::REY) {
                     reyPos = { fila, col };
                     break;
                 }
@@ -153,8 +160,8 @@ bool Juego::estaEnJaque(Color color) {
     if (reyPos.fila == -1) return false;
 
     // Verificar si alguna pieza enemiga puede atacar al rey
-    for (int fila = 0; fila < 6; ++fila) {
-        for (int col = 0; col < 5; ++col) {
+    for (int fila = 0; fila < MAXF; ++fila) {
+        for (int col = 0; col < MAXC; ++col) {
             Pieza* atacante = tablero.obtenerPieza({ fila, col });
             if (atacante && atacante->getColor() != color) {
                 if (atacante->esMovimientoValido(reyPos, tablero)) {
@@ -169,24 +176,28 @@ bool Juego::estaEnJaque(Color color) {
 
 bool Juego::esJaqueMate(Color color) {
     // Para cada pieza del color dado
-    for (int fila = 0; fila < 6; ++fila) {
-        for (int col = 0; col < 5; ++col) {
+    for (int fila = 0; fila < MAXF; ++fila) {
+        for (int col = 0; col < MAXC; ++col) {
             Posicion origen(fila, col);
             Pieza* pieza = tablero.obtenerPieza(origen);
             if (pieza && pieza->getColor() == color) {
                 // Intentamos moverla a todas las posiciones posibles
-                for (int f2 = 0; f2 < 6; ++f2) {
-                    for (int c2 = 0; c2 < 5; ++c2) {
+                for (int f2 = 0; f2 < MAXF; ++f2) {
+                    for (int c2 = 0; c2 < MAXC; ++c2) {
                         Posicion destino(f2, c2);
 
                         // Verifica si sería un movimiento válido
                         Pieza* piezaDestino = tablero.obtenerPieza(destino);
                         if (pieza->esMovimientoValido(destino, tablero)) {
                             // Prohibimos capturar reyes
-                            Rey* reyDestino = dynamic_cast<Rey*>(piezaDestino);
-                            if (reyDestino) {
+                            //Rey* reyDestino = dynamic_cast<Rey*>(piezaDestino);
+                            //if (reyDestino) {
+                            //    continue;
+                            //}
+                            
+                            //Prohibimos capturar reyes: SIN USAR DYNAMIC CAST
+                            if (piezaDestino && piezaDestino->getTipo() == t_Pieza::REY)
                                 continue;
-                            }
 
                             // Simular el movimiento
                             Pieza* piezaCapturada = tablero.obtenerPieza(destino);
@@ -224,19 +235,22 @@ bool Juego::estaAhogado(Color color) {
     }
 
     // Buscar si existe al menos un movimiento legal
-    for (int fila = 0; fila < 6; ++fila) {
-        for (int col = 0; col < 5; ++col) {
+    for (int fila = 0; fila < MAXF; ++fila) {
+        for (int col = 0; col < MAXC; ++col) {
             Posicion origen(fila, col);
             Pieza* pieza = tablero.obtenerPieza(origen);
             if (pieza && pieza->getColor() == color) {
-                for (int f2 = 0; f2 < 6; ++f2) {
-                    for (int c2 = 0; c2 < 5; ++c2) {
+                for (int f2 = 0; f2 < MAXF; ++f2) {
+                    for (int c2 = 0; c2 < MAXC; ++c2) {
                         Posicion destino(f2, c2);
                         Pieza* piezaDestino = tablero.obtenerPieza(destino);
 
                         // Prohibimos capturar reyes
-                        Rey* reyDestino = dynamic_cast<Rey*>(piezaDestino);
-                        if (reyDestino) continue;
+                        //Rey* reyDestino = dynamic_cast<Rey*>(piezaDestino);
+                        //if (reyDestino) continue;
+                        //SIN USAR DYNAMIC CAST
+                        if (piezaDestino && piezaDestino->getTipo() == t_Pieza::REY)
+                            continue;
 
                         if (pieza->esMovimientoValido(destino, tablero)) {
                             // Simular movimiento
@@ -268,11 +282,12 @@ bool Juego::tieneMaterialSuficiente() {
     int peones = 0;
 
     // Contamos todas las piezas en el tablero sin tener en cuenta el color
-    for (int fila = 0; fila < 6; ++fila) {
-        for (int col = 0; col < 5; ++col) {
+    for (int fila = 0; fila < MAXF; ++fila) {
+        for (int col = 0; col < MAXC; ++col) {
             Posicion pos(fila, col);
             Pieza* pieza = tablero.obtenerPieza(pos);
             if (pieza) {
+                /*
                 if (dynamic_cast<Rey*>(pieza)) {
                     reyes++;
                 }
@@ -291,6 +306,27 @@ bool Juego::tieneMaterialSuficiente() {
                 else if (dynamic_cast<Peon*>(pieza)) {
                     peones++;
                 }
+                */
+                //SIN DYNAMIC CAST
+
+                if (pieza->getTipo() == t_Pieza::REY) {
+                    reyes++;
+                }
+                else if (pieza->getTipo() == t_Pieza::ALFIL) {
+                    alfiles++;
+                }
+                else if (pieza->getTipo() == t_Pieza::CABALLO) {
+                    caballos++;
+                }
+                else if (pieza->getTipo() == t_Pieza::TORRE) {
+                    torres++;
+                }
+                else if (pieza->getTipo() == t_Pieza::REINA) {
+                    reinas++;
+                }
+                else if (pieza->getTipo() == t_Pieza::PEON) {
+                    peones++;
+                }
             }
         }
     }
@@ -303,10 +339,10 @@ bool Juego::tieneMaterialSuficiente() {
     }
 }
 
-std::string Juego::serializarTablero() const {
-    std::string estado;
-    for (int fila = 0; fila < 6; ++fila) {
-        for (int col = 0; col < 5; ++col) {
+string Juego::serializarTablero() const {
+    string estado;
+    for (int fila = 0; fila < MAXF; ++fila) {
+        for (int col = 0; col < MAXC; ++col) {
             Pieza* pieza = tablero.obtenerPieza(Posicion(fila, col));
             if (pieza) {
                 estado += pieza->getSimbolo();
@@ -321,49 +357,58 @@ std::string Juego::serializarTablero() const {
 }
 
 void Juego::registrarEstadoTablero() {
-    std::string estado = serializarTablero();
+    string estado = serializarTablero();
     historialTableros[estado]++;
 }
 
 bool Juego::hayTripleRepeticion() const {
-    for (const auto& par : historialTableros) {
-        if (par.second >= 3) {
+    //for (const auto& par : historialTableros) {
+    //    if (par.second >= 3) {
+    //       return true;
+    //    }
+    //}
+    // 
+    for (auto it = historialTableros.begin(); it != historialTableros.end(); ++it) {
+        if (it->second >= 3) {
             return true;
         }
     }
     return false;
 }
 
-
 bool Juego::jugarTurnoBotNoob() {
-    std::srand(std::time(nullptr));
-    std::vector<std::pair<Posicion, Posicion>> movimientosValidos;
+    srand(time(nullptr)); // Inicializamos el random
+    vector<pair<Posicion, Posicion>> movimientosValidos;
 
     // Recorremos el tablero en busca de piezas del bot
-    for (int fila = 0; fila < 6; ++fila) {
-        for (int col = 0; col < 5; ++col) {
+    for (int fila = 0; fila < MAXF; ++fila) {
+        for (int col = 0; col < MAXC; ++col) {
             Posicion origen(fila, col);
             Pieza* pieza = tablero.obtenerPieza(origen);
             if (pieza && pieza->getColor() == turnoActual) {
                 // Probar todos los posibles destinos
-                for (int f = 0; f < 6; ++f) {
-                    for (int c = 0; c < 5; ++c) {
+                for (int f = 0; f < MAXF; ++f) {
+                    for (int c = 0; c < MAXC; ++c) {
                         Posicion destino(f, c);
                         if (pieza->esMovimientoValido(destino, tablero)) {
-                            // Verificamos que no se intente capturar un rey
+                            //Verificamos que no se intente capturar un rey
                             Pieza* piezaDestino = tablero.obtenerPieza(destino);
-                            if (piezaDestino && dynamic_cast<Rey*>(piezaDestino)) {
-                                continue; // no permitimos capturar al rey
-                            }
+                            //if (piezaDestino && dynamic_cast<Rey*>(piezaDestino)) {
+                            //    continue; // no permitimos capturar al rey
+                            //}
+                            //SIN USAR DYNAMIC CAST
+                            if (piezaDestino && piezaDestino->getTipo() == t_Pieza::REY)
+                                continue;
 
                             // Simulamos el movimiento
                             Pieza* capturada = tablero.obtenerPieza(destino);
-                            tablero.moverPiezaSimulacion(origen, destino);
-                            bool enJaque = estaEnJaque(turnoActual);
-                            tablero.moverPiezaSimulacion(destino, origen);
+                            tablero.moverPiezaSimulacion(origen, destino); // Come pieza
+                            bool enJaque = estaEnJaque(turnoActual); // Comprobamos si esta en jaque despues de hacer el movimiento
+                            tablero.moverPiezaSimulacion(destino, origen); // Vuelve a la posicion anterior
                             tablero.colocarPieza(capturada, destino);
 
                             if (!enJaque) {
+                                // Guardamos cualquier movimiento que no ponga en riesgo al rey                            
                                 movimientosValidos.push_back({ origen, destino });
                             }
                         }
@@ -374,12 +419,12 @@ bool Juego::jugarTurnoBotNoob() {
     }
 
     if (movimientosValidos.empty()) {
-        std::cout << "El bot no tiene movimientos legales disponibles.\n";
+        cout << "El bot no tiene movimientos legales disponibles.\n";
         return false;
     }
 
     // Elegimos uno al azar
-    int idx = std::rand() % movimientosValidos.size();
+    int idx = rand() % movimientosValidos.size(); // [0, size()]
     Posicion origen = movimientosValidos[idx].first;
     Posicion destino = movimientosValidos[idx].second;
 
@@ -388,7 +433,11 @@ bool Juego::jugarTurnoBotNoob() {
 
     tablero.moverPiezaSimulacion(origen, destino);
 
-    bool muevePeon = dynamic_cast<Peon*>(pieza) != nullptr;
+    //bool muevePeon = dynamic_cast<Peon*>(pieza) != nullptr;
+    bool muevePeon = false;
+    if (pieza && pieza->getTipo() == t_Pieza::PEON)
+        muevePeon = true;
+
     bool capturaPieza = piezaCapturada != nullptr;
     if (muevePeon || capturaPieza) {
         movimientosSinCapturaNiPeon = 0;
@@ -399,8 +448,9 @@ bool Juego::jugarTurnoBotNoob() {
 
     // Verifica si el peón debe coronarse
     Pieza* piezaMovida = tablero.obtenerPieza(destino);
-    if (piezaMovida && dynamic_cast<Peon*>(piezaMovida)) {
+    if (piezaMovida && piezaMovida->getTipo() == t_Pieza::PEON) {
         int filaFinal = (piezaMovida->getColor() == Color::BLANCO) ? 5 : 0;
+        // (condicion) ? cierto : false
         if (destino.fila == filaFinal) {
             delete piezaMovida;
             tablero.colocarPieza(new Reina(turnoActual, destino), destino); // Por defecto, Reina
@@ -411,15 +461,15 @@ bool Juego::jugarTurnoBotNoob() {
     registrarEstadoTablero();
     verificarCondicionesDeTablas(vsMaquina);
     if (esJaqueMate(turnoActual)) {
-        Renderizador::mensajeEstado = "¡Jaque mate! Ganan " + (turnoActual == Color::BLANCO ? std::string("negras") : std::string("blancas"));
+        Renderizador::mensajeEstado = "Jaque mate! Ganan " + (turnoActual == Color::BLANCO ? string("negras") : string("blancas"));
         estadoActual = EstadoApp::FIN_PARTIDA;
     }
     else if (estaAhogado(turnoActual)) {
-        Renderizador::mensajeEstado = "¡Empate por ahogado!";
+        Renderizador::mensajeEstado = "Empate por ahogado!";
         estadoActual = EstadoApp::FIN_PARTIDA;
     }
     else if (!tieneMaterialSuficiente()) {
-        Renderizador::mensajeEstado = "¡Empate por material insuficiente!";
+        Renderizador::mensajeEstado = "Empate por material insuficiente!";
         estadoActual = EstadoApp::FIN_PARTIDA;
     }
     return true;
@@ -440,10 +490,10 @@ int Juego::evaluarMovimiento(const Posicion& origen, const Posicion& destino) {
     }
 
     // Bonus por coronación
-    if (pieza && dynamic_cast<Peon*>(pieza)) {
+    if (pieza && pieza->getTipo() == t_Pieza::PEON) {
         int filaFinal = (pieza->getColor() == Color::BLANCO) ? 5 : 0;
         if (destino.fila == filaFinal) {
-            puntuacion += 9; // Valor heurístico de coronar a Reina
+            puntuacion += 9; // Valor coronar a Reina
         }
     }
 
@@ -461,23 +511,22 @@ int Juego::evaluarMovimiento(const Posicion& origen, const Posicion& destino) {
     return puntuacion;
 }
 
-
 bool Juego::jugarTurnoBotMid() {
-    std::srand(std::time(nullptr));
-    std::vector<std::pair<Posicion, Posicion>> mejoresMovimientos;
+    srand(std::time(nullptr));
+    vector<std::pair<Posicion, Posicion>> mejoresMovimientos;
     int mejorPuntaje = -100000;
 
-    for (int fila = 0; fila < 6; ++fila) {
-        for (int col = 0; col < 5; ++col) {
+    for (int fila = 0; fila < MAXF; ++fila) {
+        for (int col = 0; col < MAXC; ++col) {
             Posicion origen(fila, col);
             Pieza* pieza = tablero.obtenerPieza(origen);
             if (pieza && pieza->getColor() == turnoActual) {
-                for (int f = 0; f < 6; ++f) {
-                    for (int c = 0; c < 5; ++c) {
+                for (int f = 0; f < MAXF; ++f) {
+                    for (int c = 0; c < MAXC; ++c) {
                         Posicion destino(f, c);
                         if (pieza->esMovimientoValido(destino, tablero)) {
                             Pieza* objetivo = tablero.obtenerPieza(destino);
-                            if (objetivo && dynamic_cast<Rey*>(objetivo)) continue;
+                            if (objetivo && objetivo->getTipo() == t_Pieza::REY) continue;
 
                             int score = evaluarMovimiento(origen, destino);
 
@@ -497,12 +546,12 @@ bool Juego::jugarTurnoBotMid() {
     }
 
     if (mejoresMovimientos.empty()) {
-        std::cout << "El bot no tiene movimientos legales disponibles.\n";
+        cout << "El bot no tiene movimientos legales disponibles.\n";
         return false;
     }
 
     // Elegimos uno al azar
-    int idx = std::rand() % mejoresMovimientos.size();
+    int idx = rand() % mejoresMovimientos.size();
     Posicion origen = mejoresMovimientos[idx].first;
     Posicion destino = mejoresMovimientos[idx].second;
 
@@ -511,7 +560,11 @@ bool Juego::jugarTurnoBotMid() {
 
     tablero.moverPiezaSimulacion(origen, destino);
 
-    bool muevePeon = dynamic_cast<Peon*>(pieza) != nullptr;
+    //bool muevePeon = dynamic_cast<Peon*>(pieza) != nullptr;
+    bool muevePeon = false;
+    if (pieza && pieza->getTipo() == t_Pieza::PEON)
+        muevePeon = true;
+
     bool capturaPieza = piezaCapturada != nullptr;
     if (muevePeon || capturaPieza) {
         movimientosSinCapturaNiPeon = 0;
@@ -522,7 +575,7 @@ bool Juego::jugarTurnoBotMid() {
 
     // Verifica si el peón debe coronarse
     Pieza* piezaMovida = tablero.obtenerPieza(destino);
-    if (piezaMovida && dynamic_cast<Peon*>(piezaMovida)) {
+    if (piezaMovida && piezaMovida->getTipo() == t_Pieza::PEON) {
         int filaFinal = (piezaMovida->getColor() == Color::BLANCO) ? 5 : 0;
         if (destino.fila == filaFinal) {
             delete piezaMovida;
@@ -534,15 +587,15 @@ bool Juego::jugarTurnoBotMid() {
     registrarEstadoTablero();
     verificarCondicionesDeTablas(vsMaquina);
     if (esJaqueMate(turnoActual)) {
-        Renderizador::mensajeEstado = "¡Jaque mate! Ganan " + (turnoActual == Color::BLANCO ? std::string("negras") : std::string("blancas"));
+        Renderizador::mensajeEstado = "Jaque mate! Ganan " + (turnoActual == Color::BLANCO ? string("negras") : string("blancas"));
         estadoActual = EstadoApp::FIN_PARTIDA;
     }
     else if (estaAhogado(turnoActual)) {
-        Renderizador::mensajeEstado = "¡Empate por ahogado!";
+        Renderizador::mensajeEstado = "Empate por ahogado!";
         estadoActual = EstadoApp::FIN_PARTIDA;
     }
     else if (!tieneMaterialSuficiente()) {
-        Renderizador::mensajeEstado = "¡Empate por material insuficiente!";
+        Renderizador::mensajeEstado = "Empate por material insuficiente!";
         estadoActual = EstadoApp::FIN_PARTIDA;
     }
     return true;
@@ -554,7 +607,7 @@ Tablero& Juego::obtenerTablero() {
 
 void Juego::verificarCoronacion(const Posicion& destino) {
     Pieza* piezaMovida = tablero.obtenerPieza(destino);
-    if (piezaMovida && dynamic_cast<Peon*>(piezaMovida)) {
+    if (piezaMovida && piezaMovida->getTipo() == t_Pieza::PEON) {
         int filaFinal = (piezaMovida->getColor() == Color::BLANCO) ? 5 : 0;
 
         if (destino.fila == filaFinal) {
@@ -571,10 +624,11 @@ void Juego::verificarCoronacion(const Posicion& destino) {
 void Juego::coronarPeonConTecla(char tecla) {
     if (!enCoronacion) return;
 
-    tecla = std::toupper(tecla);  // Asegurar que la tecla es mayúscula
+    tecla = toupper(tecla);  // Asegurar que la tecla es mayúscula
     Pieza* antigua = tablero.obtenerPieza(posicionCoronacion);
     Color colorPeon = antigua->getColor();
-    if (!antigua || !dynamic_cast<Peon*>(antigua)) return;
+    //if (!antigua || !dynamic_cast<Peon*>(antigua)) return;
+    if (!antigua || (antigua && antigua->getTipo() != t_Pieza::PEON)) return;
 
     delete antigua;
 
@@ -592,6 +646,7 @@ void Juego::coronarPeonConTecla(char tecla) {
     default:
         tablero.colocarPieza(new Reina(colorPeon, posicionCoronacion), posicionCoronacion);
         break;
+
     }
 
     enCoronacion = false;
@@ -603,12 +658,12 @@ void Juego::coronarPeonConTecla(char tecla) {
 
 void Juego::verificarCondicionesDeTablas(bool vsMaquina) {
 
-    if ((getMovimientosSinCapturaNiPeon() >= 4 || hayTripleRepeticion()) &&
+    if ((getMovimientosSinCapturaNiPeon() >= MAX_MOV || hayTripleRepeticion()) &&
         (!vsMaquina || obtenerTurnoActual() == Color::BLANCO)) {
 
-        std::cout << "Condición de tablas detectada\n";
+        cout << "Condicion de tablas detectada\n";
 
-        if (getMovimientosSinCapturaNiPeon() >= 4) {
+        if (getMovimientosSinCapturaNiPeon() >= MAX_MOV) {
             Renderizador::mensajeEstado = "50 movimientos sin captura ni movimiento de peon.";
         }
         else {
@@ -619,6 +674,3 @@ void Juego::verificarCondicionesDeTablas(bool vsMaquina) {
         glutPostRedisplay();
     }
 }
-
-
-
