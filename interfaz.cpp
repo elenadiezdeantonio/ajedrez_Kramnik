@@ -29,6 +29,7 @@ void InterfazUsuario::mouseCallback(int button, int state, int x, int y) {
         int altoVentana = glutGet(GLUT_WINDOW_HEIGHT);
 
         // Convertir coordenadas de píxeles a coordenadas ortográficas (0–5 en X, 0–6 en Y)
+
         float xf = (x / (float)anchoVentana) * 5.0f;
         float yf = ((altoVentana - y) / (float)altoVentana) * 6.0f;
 
@@ -61,31 +62,36 @@ void InterfazUsuario::mouseCallback(int button, int state, int x, int y) {
     }
 
     // Si estamos en el juego normal
+    // Si estamos en el juego normal
     int anchoVentana = glutGet(GLUT_WINDOW_WIDTH);
     int altoVentana = glutGet(GLUT_WINDOW_HEIGHT);
 
-    int col = x / (anchoVentana / 5);
-    int fila = 5 - (y / (altoVentana / 6));
+    // Convertir a coordenadas OpenGL en el sistema ortográfico (-1,6)x(-1,7)
+    float xOpenGL = (x / (float)anchoVentana) * 7.0f - 1.0f;
+    float yOpenGL = ((altoVentana - y) / (float)altoVentana) * 8.0f - 1.0f;
 
-    static Posicion origen(-1, -1);
+    // Tablero visible en (0,0) a (5,6)
+    if (xOpenGL >= 0 && xOpenGL < 5 && yOpenGL >= 0 && yOpenGL < 6) {
+        int col = static_cast<int>(xOpenGL);
+        int fila = static_cast<int>(yOpenGL);
 
-    if (origen.fila == -1) {
-        origen = Posicion(fila, col);
-    }
-    else {
-        juego->jugarTurno(origen, Posicion(fila, col));
-        origen = Posicion(-1, -1);
-        glutPostRedisplay();
+        static Posicion origen(-1, -1);
 
-        // Turno del bot si está activado el modo vs máquina
-        if (tipoVsMaquina) {
-            if (juego->obtenerTurnoActual() == Color::NEGRO) {
-                if (dificultadSeleccionada == DificultadBot::NOOB) {
+        if (origen.fila == -1) {
+            origen = Posicion(fila, col);
+        }
+        else {
+            juego->jugarTurno(origen, Posicion(fila, col));
+            origen = Posicion(-1, -1);
+            glutPostRedisplay();
+
+            // Turno del bot si está activado el modo vs máquina
+            if (tipoVsMaquina && juego->obtenerTurnoActual() == Color::NEGRO) {
+                if (dificultadSeleccionada == DificultadBot::NOOB)
                     juego->jugarTurnoBotNoob();
-                }
-                else if (dificultadSeleccionada == DificultadBot::MID) {
+                else
                     juego->jugarTurnoBotMid();
-                }
+
                 glutPostRedisplay();
             }
         }
@@ -97,7 +103,4 @@ void InterfazUsuario::keyboardCallback(unsigned char key, int x, int y) {
         juego->coronarPeonConTecla(key);  // Delega en la lógica de coronación del juego
         return;
     }
-
-
 }
-

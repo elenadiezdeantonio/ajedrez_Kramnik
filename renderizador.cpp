@@ -47,11 +47,15 @@ void Renderizador::establecerJuego(Juego* j) {
 void Renderizador::inicializar(int argc, char** argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-    glutInitWindowSize(500, 600);
+    glutInitWindowSize(600, 700);
+    //
     glutCreateWindow("Ajedrez Personalizado");
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluOrtho2D(0, 5, 0, 6);
+
+
+    gluOrtho2D(-1, 6, -1, 7);
+
     glClearColor(1, 1, 1, 1);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -103,15 +107,17 @@ void Renderizador::dibujar() {
                 glBindTexture(GL_TEXTURE_2D, texturaFondo);
                 glColor3f(1.0f, 1.0f, 1.0f);
 
+                // Dibujar el fondo en toda el área visible (-1 a 6 en X, -1 a 7 en Y)
                 glBegin(GL_QUADS);
-                glTexCoord2f(0.0f, 0.0f); glVertex2f(0, 0);
-                glTexCoord2f(1.0f, 0.0f); glVertex2f(5, 0);
-                glTexCoord2f(1.0f, 1.0f); glVertex2f(5, 6);
-                glTexCoord2f(0.0f, 1.0f); glVertex2f(0, 6);
+                glTexCoord2f(0.0f, 0.0f); glVertex2f(-1, -1);
+                glTexCoord2f(1.0f, 0.0f); glVertex2f(6, -1);
+                glTexCoord2f(1.0f, 1.0f); glVertex2f(6, 7);
+                glTexCoord2f(0.0f, 1.0f); glVertex2f(-1, 7);
                 glEnd();
 
                 glDisable(GL_TEXTURE_2D);
             }
+
             ///
 
             for (int fila = 0; fila < 6; ++fila)
@@ -212,8 +218,11 @@ void Renderizador::manejarMouse(int boton, int estado, int x, int y) {
 
     int ancho = glutGet(GLUT_WINDOW_WIDTH);
     int alto = glutGet(GLUT_WINDOW_HEIGHT);
-    float xOpenGL = x * 5.0f / ancho;
-    float yOpenGL = (alto - y) * 6.0f / alto;
+
+    //CAMBIADO NUEVAS COORDENADAS
+    float xOpenGL = x * 7.0f / ancho - 1.0f;
+    float yOpenGL = (alto - y) * 8.0f / alto - 1.0f;
+
 
     if (estadoActual == EstadoApp::MENU_PRINCIPAL) {
         // Botón PLAY
@@ -471,7 +480,7 @@ void Renderizador::mostrarSolicitudTablas(const std::string& mensajeEstado) {
     // Establecer sistema de coordenadas ortográficas
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluOrtho2D(0, 5, 0, 6);  // Mismo sistema que mostrarMenu
+    gluOrtho2D(-1, 6, -1, 7);  // Mismo sistema que mostrarMenu
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
