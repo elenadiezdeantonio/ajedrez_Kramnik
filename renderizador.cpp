@@ -1,7 +1,7 @@
 ﻿#include "renderizador.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-
+Posicion Renderizador::casillaSeleccionada = Posicion(-1, -1);//AL PRINCIPIO DESPUES DE LOS INCLUDES
 Tablero* Renderizador::tablero = nullptr;
 Juego* Renderizador::juego = nullptr;
 EstadoApp estadoActual = EstadoApp::MENU_PRINCIPAL;
@@ -214,11 +214,19 @@ void Renderizador::dibujar() {
 
 void Renderizador::dibujarCasilla(int fila, int col) {
 
-    if ((fila + col) % 2 == 0)
-        glColor4f(0.8f, 0.8f, 0.8f, alphaTablero);
-    else
-        glColor4f(0.3f, 0.3f, 0.3f, alphaTablero);
 
+    if (fila == casillaSeleccionada.fila && col == casillaSeleccionada.columna) {
+        // Casilla seleccionada → verde claro
+        glColor4f(0, 0.8f, 0, alphaTablero);
+    }
+    else if ((fila + col) % 2 == 0) {
+        // Casilla clara normal
+        glColor4f(0.8f, 0.8f, 0.8f, alphaTablero);
+    }
+    else {
+        // Casilla oscura normal
+        glColor4f(0.3f, 0.3f, 0.3f, alphaTablero);
+    }
 
     glBegin(GL_POLYGON);
     glVertex2f(col, fila);
@@ -226,6 +234,8 @@ void Renderizador::dibujarCasilla(int fila, int col) {
     glVertex2f(col + 1, fila + 1);
     glVertex2f(col, fila + 1);
     glEnd();
+
+
 }
 
 

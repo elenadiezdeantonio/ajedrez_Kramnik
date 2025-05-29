@@ -59,4 +59,5 @@ public:
     static void actualizarAlpha(int);
 
     static void dibujarTemporizador();
+    static Posicion casillaSeleccionada;//AÑADIR A PUBLIC:
 };

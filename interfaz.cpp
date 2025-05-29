@@ -75,26 +75,33 @@ void InterfazUsuario::mouseCallback(int button, int state, int x, int y) {
         int col = static_cast<int>(xOpenGL);
         int fila = static_cast<int>(yOpenGL);
 
+
+        //CAMBIO PARA VER LA CASILLA SELECCIONADA
         static Posicion origen(-1, -1);
 
         if (origen.fila == -1) {
             origen = Posicion(fila, col);
+            Renderizador::casillaSeleccionada = origen;
         }
         else {
-            juego->jugarTurno(origen, Posicion(fila, col));
-            origen = Posicion(-1, -1);
-            glutPostRedisplay();
-
-            // Turno del bot si está activado el modo vs máquina
-            if (tipoVsMaquina && juego->obtenerTurnoActual() == Color::NEGRO) {
-                if (dificultadSeleccionada == DificultadBot::NOOB)
-                    juego->jugarTurnoBotNoob();
-                else
-                    juego->jugarTurnoBotMid();
-
+            bool movValido = juego->jugarTurno(origen, Posicion(fila, col));
+            if (movValido) {
+                origen = Posicion(-1, -1);
+                Renderizador::casillaSeleccionada = Posicion(-1, -1);
                 glutPostRedisplay();
+
+                // Verificar si debe jugar la máquina
+                if (tipoVsMaquina && juego->obtenerTurnoActual() == Color::NEGRO) {
+                    if (dificultadSeleccionada == DificultadBot::NOOB)
+                        juego->jugarTurnoBotNoob();
+                    else
+                        juego->jugarTurnoBotMid();
+
+                    glutPostRedisplay();
+                }
             }
         }
+
     }
 }
 void InterfazUsuario::keyboardCallback(unsigned char key, int x, int y) {
