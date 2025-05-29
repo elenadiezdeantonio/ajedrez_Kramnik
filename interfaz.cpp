@@ -1,6 +1,7 @@
 #include "interfaz.h"
 #include "renderizador.h"
 #include "freeglut.h"
+#include <windows.h>
 
 Juego* InterfazUsuario::juego = nullptr;
 
@@ -46,13 +47,36 @@ void InterfazUsuario::mouseCallback(int button, int state, int x, int y) {
 
         return;
     }
+    if (estado == EstadoApp::JUGAR_DE_NUEVO) {
+        int anchoVentana = glutGet(GLUT_WINDOW_WIDTH);
+        int altoVentana = glutGet(GLUT_WINDOW_HEIGHT);
+        float xf = (x / (float)anchoVentana) * 5.0f;
+        float yf = ((altoVentana - y) / (float)altoVentana) * 6.0f;
 
+        if (xf >= 1.2f && xf <= 2.2f && yf >= 3.0f && yf <= 3.6f) {
+
+
+            juego->reiniciar();
+            estadoActual = EstadoApp::SELECCION_ESTILO;
+            glutPostRedisplay();
+
+
+            return;
+        }
+
+        if (xf >= 2.8f && xf <= 3.8f && yf >= 3.0f && yf <= 3.6f) {
+            exit(0);
+        }
+
+        return;
+    }
     // Menús normales
     if (estado == EstadoApp::MENU_PRINCIPAL ||
         estado == EstadoApp::SELECCION_MODO ||
         estado == EstadoApp::SELECCION_TIPO_JUEGO ||
         estado == EstadoApp::SELECCION_DIFICULTAD ||
-        estado == EstadoApp::SELECCION_ESTILO) {
+        estado == EstadoApp::SELECCION_ESTILO ||
+        estado == EstadoApp::JUGAR_DE_NUEVO) {
         Renderizador::manejarMouse(button, state, x, y);
         return;
     }
@@ -119,11 +143,20 @@ void InterfazUsuario::mouseCallback(int button, int state, int x, int y) {
         Renderizador::casillaSeleccionada = Posicion(-1, -1);
         glutPostRedisplay();
     }
+
 }
+
+
 void InterfazUsuario::keyboardCallback(unsigned char key, int x, int y) {
     // Si estamos en pantalla de coronación
     if (estadoActual == EstadoApp::CORONACION_PEON) {
         juego->coronarPeonConTecla(key);  // Delega en la lógica de coronación del juego
         return;
     }
+
+
 }
+
+
+
+

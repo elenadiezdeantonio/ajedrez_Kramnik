@@ -1,29 +1,31 @@
 #pragma once
-#include <vector>
 #include "tablero.h"
 #include "color.h"
 #include <map>
 #include <string>
-
+#include <vector>
 #include <cstdlib>
 #include <ctime>
+#include <chrono>//AÑADIDA PARA EL RELOJ
+
 #include "renderizador.h"
 #include "freeglut.h"
-#include <chrono>
-
+using namespace std;
 class Juego {
 private:
     Tablero tablero;
     Color turnoActual;
     int movimientosSinCapturaNiPeon = 0;
-    std::map<std::string, int> historialTableros;
-    std::string serializarTablero() const;
+    map<string, int> historialTableros;
+    string serializarTablero() const;
     bool enCoronacion = false;
     Posicion posicionCoronacion;
     bool vsMaquina = false;
+
     //TEMPORIZAODRES
     int tiempoBlanco;
     int tiempoNegro;
+
     std::chrono::time_point<std::chrono::steady_clock> inicioTurno;
 public:
     Juego();
@@ -47,17 +49,29 @@ public:
     void verificarCoronacion(const Posicion& destino);
     void coronarPeonConTecla(char tecla);
     void verificarCondicionesDeTablas(bool vsMaquina);
+
+
+
+
     int obtenerTiempoBlanco() const;
     int obtenerTiempoNegro() const;
+
     void verificarTiempoAgotado();
 
-    //VECTOR QUE ALMACENA LAS PIEZAS ELIMINADAS
 
-    std::vector <Pieza*> piezasCapturadasPorBlancas;
-    std::vector <Pieza*> piezasCapturadasPorNegras;
-    
+    //ALAMCENLAS LAS PIEZASELIMINADAS
+    vector<Pieza*> piezasCapturadasPorBlancas;
+    vector<Pieza*> piezasCapturadasPorNegras;
+
+    //NUEVO MODO DE JUGO CON SU NUEVO MODELO DE SELECCION DE MOVIMIENTO
+    int evaluarRespuestaDelOponente(Color oponente);
+    bool jugarTurnoBotHard();
+
+    //POSIBLIDIDAD DE JUGAR MAS PARTIDAS
+    void reiniciar();
+
+
 };
-
 
 
 

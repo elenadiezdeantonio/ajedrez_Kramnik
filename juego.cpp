@@ -8,12 +8,17 @@
 #include "posicion.h"
 #include "Constantes.h"
 #include <iostream>
+
+
 using namespace std;
 
+//CONSTRUCTOR DE JUEGO INICICLIZA EL TIEMPO PARA TEMPORIZADORES
 Juego::Juego() : turnoActual(Color::BLANCO), tiempoBlanco(300), tiempoNegro(300) {
 
 
 }
+// Inicializa otras cosas como siempre
+
 
 void Juego::iniciar5x6() {
     for (int col = 0; col < MAXC; ++col) {
@@ -32,6 +37,10 @@ void Juego::iniciar5x6() {
     tablero.colocarPieza(new Alfil(Color::BLANCO, { 0, 2 }), { 0, 2 });
     tablero.colocarPieza(new Reina(Color::BLANCO, { 0, 3 }), { 0, 3 });
     tablero.colocarPieza(new Rey(Color::BLANCO, { 0, 4 }), { 0, 4 });
+
+
+    inicioTurno = std::chrono::steady_clock::now();
+
 }
 
 void Juego::iniciarPetty() {
@@ -51,6 +60,10 @@ void Juego::iniciarPetty() {
     tablero.colocarPieza(new Alfil(Color::BLANCO, { 0, 2 }), { 0, 2 });
     tablero.colocarPieza(new Caballo(Color::BLANCO, { 0, 3 }), { 0, 3 });
     tablero.colocarPieza(new Torre(Color::BLANCO, { 0, 4 }), { 0, 4 });
+
+
+    inicioTurno = std::chrono::steady_clock::now();
+
 }
 
 bool Juego::jugarTurno(Posicion origen, Posicion destino) {
@@ -178,6 +191,8 @@ void Juego::cambiarTurno() {
 
     inicioTurno = std::chrono::steady_clock::now();
 }
+
+
 bool Juego::estaEnJaque(Color color) {
     Posicion reyPos;
 
@@ -212,6 +227,7 @@ bool Juego::estaEnJaque(Color color) {
 
     return false;
 }
+
 bool Juego::esJaqueMate(Color color) {
     // Para cada pieza del color dado
     for (int fila = 0; fila < MAXF; ++fila) {
@@ -232,8 +248,7 @@ bool Juego::esJaqueMate(Color color) {
                             //if (reyDestino) {
                             //    continue;
                             //}
-                            
-                            //Prohibimos capturar reyes: SIN USAR DYNAMIC CAST
+                            //SIN USAR DYNAMIC CAST
                             if (piezaDestino && piezaDestino->getTipo() == t_Pieza::REY)
                                 continue;
 
@@ -400,12 +415,6 @@ void Juego::registrarEstadoTablero() {
 }
 
 bool Juego::hayTripleRepeticion() const {
-    //for (const auto& par : historialTableros) {
-    //    if (par.second >= 3) {
-    //       return true;
-    //    }
-    //}
-    // 
     for (auto it = historialTableros.begin(); it != historialTableros.end(); ++it) {
         if (it->second >= 3) {
             return true;
@@ -415,7 +424,7 @@ bool Juego::hayTripleRepeticion() const {
 }
 
 bool Juego::jugarTurnoBotNoob() {
-    srand(time(nullptr)); // Inicializamos el random
+    srand(std::time(nullptr)); // Inicializamos el random
     vector<pair<Posicion, Posicion>> movimientosValidos;
 
     // Recorremos el tablero en busca de piezas del bot
@@ -483,12 +492,14 @@ bool Juego::jugarTurnoBotNoob() {
     else {
         movimientosSinCapturaNiPeon++;
     }
+
     if (piezaCapturada) {
         if (turnoActual == Color::BLANCO)
             piezasCapturadasPorBlancas.push_back(piezaCapturada);
         else
             piezasCapturadasPorNegras.push_back(piezaCapturada);
     }
+
 
     // Verifica si el peón debe coronarse
     Pieza* piezaMovida = tablero.obtenerPieza(destino);
@@ -501,19 +512,22 @@ bool Juego::jugarTurnoBotNoob() {
         }
     }
 
+
+
+
     cambiarTurno();
     registrarEstadoTablero();
     verificarCondicionesDeTablas(vsMaquina);
     if (esJaqueMate(turnoActual)) {
-        Renderizador::mensajeEstado = "Jaque mate! Ganan " + (turnoActual == Color::BLANCO ? string("negras") : string("blancas"));
+        Renderizador::mensajeEstado = "¡Jaque mate! Ganan " + (turnoActual == Color::BLANCO ? string("negras") : string("blancas"));
         estadoActual = EstadoApp::FIN_PARTIDA;
     }
     else if (estaAhogado(turnoActual)) {
-        Renderizador::mensajeEstado = "Empate por ahogado!";
+        Renderizador::mensajeEstado = "¡Empate por ahogado!";
         estadoActual = EstadoApp::FIN_PARTIDA;
     }
     else if (!tieneMaterialSuficiente()) {
-        Renderizador::mensajeEstado = "Empate por material insuficiente!";
+        Renderizador::mensajeEstado = "¡Empate por material insuficiente!";
         estadoActual = EstadoApp::FIN_PARTIDA;
     }
     return true;
@@ -526,7 +540,7 @@ int Juego::evaluarMovimiento(const Posicion& origen, const Posicion& destino) {
 
     if (objetivo) {
         if (objetivo->getColor() == turnoActual) {
-            puntuacion -= objetivo->getValor(); // castiga comerse piezas propias
+            puntuacion = puntuacion - (2 * objetivo->getValor()); // castiga comerse piezas propias
         }
         else {
             puntuacion += objetivo->getValor(); // premia capturar enemigas
@@ -554,6 +568,9 @@ int Juego::evaluarMovimiento(const Posicion& origen, const Posicion& destino) {
 
     return puntuacion;
 }
+
+
+
 
 bool Juego::jugarTurnoBotMid() {
     srand(std::time(nullptr));
@@ -639,15 +656,15 @@ bool Juego::jugarTurnoBotMid() {
     registrarEstadoTablero();
     verificarCondicionesDeTablas(vsMaquina);
     if (esJaqueMate(turnoActual)) {
-        Renderizador::mensajeEstado = "Jaque mate! Ganan " + (turnoActual == Color::BLANCO ? string("negras") : string("blancas"));
+        Renderizador::mensajeEstado = "¡Jaque mate! Ganan " + (turnoActual == Color::BLANCO ? string("negras") : string("blancas"));
         estadoActual = EstadoApp::FIN_PARTIDA;
     }
     else if (estaAhogado(turnoActual)) {
-        Renderizador::mensajeEstado = "Empate por ahogado!";
+        Renderizador::mensajeEstado = "¡Empate por ahogado!";
         estadoActual = EstadoApp::FIN_PARTIDA;
     }
     else if (!tieneMaterialSuficiente()) {
-        Renderizador::mensajeEstado = "Empate por material insuficiente!";
+        Renderizador::mensajeEstado = "¡Empate por material insuficiente!";
         estadoActual = EstadoApp::FIN_PARTIDA;
     }
     return true;
@@ -713,7 +730,7 @@ void Juego::verificarCondicionesDeTablas(bool vsMaquina) {
     if ((getMovimientosSinCapturaNiPeon() >= MAX_MOV || hayTripleRepeticion()) &&
         (!vsMaquina || obtenerTurnoActual() == Color::BLANCO)) {
 
-        cout << "Condicion de tablas detectada\n";
+        cout << "Condición de tablas detectada\n";
 
         if (getMovimientosSinCapturaNiPeon() >= MAX_MOV) {
             Renderizador::mensajeEstado = "50 movimientos sin captura ni movimiento de peon.";
@@ -726,6 +743,30 @@ void Juego::verificarCondicionesDeTablas(bool vsMaquina) {
         glutPostRedisplay();
     }
 }
+
+/// CALCULO DE TIEMPO PARA NEGRAS Y BLAMCAS
+
+
+int Juego::obtenerTiempoBlanco() const {
+
+    if ((turnoActual == Color::BLANCO) && (estadoActual == EstadoApp::JUEGO)) {
+        auto ahora = std::chrono::steady_clock::now();
+        int pasado = std::chrono::duration_cast<std::chrono::seconds>(ahora - inicioTurno).count();
+        return std::max(0, tiempoBlanco - pasado);
+    }
+    return tiempoBlanco;
+}
+
+int Juego::obtenerTiempoNegro() const {
+    if ((turnoActual == Color::NEGRO) && (estadoActual == EstadoApp::JUEGO)) {
+        auto ahora = std::chrono::steady_clock::now();
+        int pasado = std::chrono::duration_cast<std::chrono::seconds>(ahora - inicioTurno).count();
+        return std::max(0, tiempoNegro - pasado);
+    }
+    return tiempoNegro;
+}
+
+//FUNCION QUE VERIFICA EL TIEMPO
 void Juego::verificarTiempoAgotado() {
 
     if ((tipoVsMaquina == false)) {
@@ -749,3 +790,200 @@ void Juego::verificarTiempoAgotado() {
 
     }
 }
+
+
+
+//INTENTO DE AUMENTAR NIVEL BOT(IGUAL QUE MID PERO EVALUA LA POSIBLE RESPUESTA DEL OPONENTE)
+
+
+int Juego::evaluarRespuestaDelOponente(Color oponente) {
+    int mejorPuntaje = -100000;
+
+    //EVALUA LA RESPUESTA DEL OPONENTE Y DELVUELVE UNA PUNTUACION EN BASE AL MOVIMINETO
+
+    for (int fila = 0; fila < MAXF; ++fila) {
+        for (int col = 0; col < MAXC; ++col) {
+            Posicion origen(fila, col);
+            Pieza* pieza = tablero.obtenerPieza(origen);
+            if (pieza && pieza->getColor() == oponente) {
+
+                for (int f = 0; f < MAXF; ++f) {
+                    for (int c = 0; c < MAXC; ++c) {
+                        Posicion destino(f, c);
+
+                        if (!pieza->esMovimientoValido(destino, tablero))
+                            continue;
+
+                        Pieza* objetivo = tablero.obtenerPieza(destino);
+
+                        // Evita que el oponente se coma sus propias piezas
+                        if (objetivo && objetivo->getColor() == oponente)
+                            continue;
+
+                        // Simulación
+                        tablero.moverPiezaSimulacion(origen, destino);
+
+                        // Evaluación del movimiento del oponente
+                        int score = evaluarMovimiento(origen, destino);
+
+                        // Revertir la simulación
+                        tablero.moverPiezaSimulacion(destino, origen);
+                        tablero.colocarPieza(objetivo, destino);
+
+                        mejorPuntaje = std::max(mejorPuntaje, score);
+                    }
+                }
+            }
+        }
+    }
+
+    return mejorPuntaje;
+}
+
+
+bool Juego::jugarTurnoBotHard() {
+    std::srand(std::time(nullptr));
+    std::vector<std::pair<Posicion, Posicion>> mejoresMovimientos;
+    int mejorPuntajeGlobal = -100000;
+
+    Color oponente = (turnoActual == Color::BLANCO) ? Color::NEGRO : Color::BLANCO;
+
+    for (int fila = 0; fila < MAXF; ++fila) {
+        for (int col = 0; col < MAXC; ++col) {
+            Posicion origen(fila, col);
+            Pieza* pieza = tablero.obtenerPieza(origen);
+            if (pieza && pieza->getColor() == turnoActual) {
+                for (int f = 0; f < MAXF; ++f) {
+                    for (int c = 0; c < MAXC; ++c) {
+                        Posicion destino(f, c);
+                        if (pieza->esMovimientoValido(destino, tablero)) {
+                            Pieza* objetivo = tablero.obtenerPieza(destino);
+                            if (objetivo && objetivo->getTipo() == t_Pieza::REY) continue;
+
+                            // Simular movimiento propio
+                            tablero.moverPiezaSimulacion(origen, destino);
+
+                            // EVALUA LAS RESPUESTAS DEL OPONENTE EN BASE A LOS POSIBLES MOVIMINETOS
+                            int respuesta = evaluarRespuestaDelOponente(oponente);
+
+                            // Revertir simulación
+                            tablero.moverPiezaSimulacion(destino, origen);
+                            tablero.colocarPieza(objetivo, destino);
+
+                            //PUNTUACION DEL MOVIMIENTO - PUNTUACION DE LA RESPUESTA DEL OPONENTE
+                            int score = evaluarMovimiento(origen, destino) - respuesta;
+
+                            if (score > mejorPuntajeGlobal) {
+                                mejoresMovimientos.clear();
+                                mejoresMovimientos.emplace_back(origen, destino);
+                                mejorPuntajeGlobal = score;
+                            }
+                            else if (score == mejorPuntajeGlobal) {
+                                mejoresMovimientos.emplace_back(origen, destino);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (mejoresMovimientos.empty()) {
+        std::cout << "El bot HARD no tiene movimientos válidos.\n";
+        return false;
+    }
+
+    // Elegimos uno de los mejores movimientos al azar
+    int idx = rand() % mejoresMovimientos.size();
+    Posicion origen = mejoresMovimientos[idx].first;
+    Posicion destino = mejoresMovimientos[idx].second;
+
+    Pieza* pieza = tablero.obtenerPieza(origen);
+    Pieza* piezaCapturada = tablero.obtenerPieza(destino);
+
+    tablero.moverPiezaSimulacion(origen, destino);
+
+    // Captura y contador de movimientos sin peón/captura
+    bool muevePeon = (pieza && pieza->getTipo() == t_Pieza::PEON);
+    bool capturaPieza = piezaCapturada != nullptr;
+
+    if (muevePeon || capturaPieza) {
+        movimientosSinCapturaNiPeon = 0;
+    }
+    else {
+        movimientosSinCapturaNiPeon++;
+    }
+
+    if (piezaCapturada) {
+        if (turnoActual == Color::BLANCO)
+            piezasCapturadasPorBlancas.push_back(piezaCapturada);
+        else
+            piezasCapturadasPorNegras.push_back(piezaCapturada);
+    }
+
+    // Coronación si aplica
+    Pieza* piezaMovida = tablero.obtenerPieza(destino);
+    if (piezaMovida && piezaMovida->getTipo() == t_Pieza::PEON) {
+        int filaFinal = (piezaMovida->getColor() == Color::BLANCO) ? 5 : 0;
+        if (destino.fila == filaFinal) {
+            delete piezaMovida;
+            tablero.colocarPieza(new Reina(turnoActual, destino), destino);
+        }
+    }
+
+    cambiarTurno();
+    registrarEstadoTablero();
+    verificarCondicionesDeTablas(vsMaquina);
+
+    if (esJaqueMate(turnoActual)) {
+        Renderizador::mensajeEstado = std::string("¡Jaque mate! Ganan ") + (turnoActual == Color::BLANCO ? "negras" : "blancas");
+        estadoActual = EstadoApp::FIN_PARTIDA;
+    }
+    else if (estaAhogado(turnoActual)) {
+        Renderizador::mensajeEstado = "¡Empate por ahogado!";
+        estadoActual = EstadoApp::FIN_PARTIDA;
+    }
+    else if (!tieneMaterialSuficiente()) {
+        Renderizador::mensajeEstado = "¡Empate por material insuficiente!";
+        estadoActual = EstadoApp::FIN_PARTIDA;
+    }
+
+    return true;
+}
+
+//FUNCION PARA LIMPIAR LAS OPCIONES AL JUGAAR OTRA VEZ
+void Juego::reiniciar() {
+
+    //ELIMINA LAS PIEZAS DEL TALERO
+    for (int fila = 0; fila < MAXF; ++fila) {
+        for (int col = 0; col < MAXC; ++col) {
+            Pieza* p = tablero.obtenerPieza({ fila, col });
+            if (p) {
+                delete p;
+                tablero.colocarPieza(nullptr, { fila, col });
+            }
+        }
+    }
+
+    // ELIMINA LAS PIEZAS CAPTURADAS POR AMBOS JUGADORES
+    for (Pieza* p : piezasCapturadasPorBlancas) delete p;
+    for (Pieza* p : piezasCapturadasPorNegras) delete p;
+    piezasCapturadasPorBlancas.clear();
+    piezasCapturadasPorNegras.clear();
+
+    // LIMPIA LOS TEMPORIZADORES Y ESTADO
+    turnoActual = Color::BLANCO;
+    tiempoBlanco = 300;
+    tiempoNegro = 300;
+    movimientosSinCapturaNiPeon = 0;
+    historialTableros.clear();
+    inicioTurno = std::chrono::steady_clock::now();
+
+}
+
+
+
+
+
+
+
