@@ -18,6 +18,8 @@ private:
     static Tablero* tablero;
     static std::map<std::string, GLuint> texturasPiezas;
 public:
+    static float alphaTablero;  // Transparencia de 0.0 a 1.0
+
     static std::string mensajeEstado;
     static Juego* juego;
     static void inicializar(int argc, char** argv);
@@ -52,4 +54,10 @@ public:
 
     //para poner fondo a baraja
     static GLuint texturaFondo;
+
+    
+ 
+    static void actualizarAlpha(int);
+
+
 };

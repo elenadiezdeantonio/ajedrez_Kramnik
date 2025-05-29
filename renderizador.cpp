@@ -15,6 +15,9 @@ std::string Renderizador::mensajeEstado = "";
 GLuint Renderizador::texturaFondo = 0;
 EstiloVisual Renderizador::estiloActual = EstiloVisual::NORMAL;
 
+float Renderizador::alphaTablero = 0.0f;
+
+
 
 
 
@@ -140,10 +143,12 @@ void Renderizador::dibujar() {
 
 
 void Renderizador::dibujarCasilla(int fila, int col) {
+
     if ((fila + col) % 2 == 0)
-        glColor3f(0.8f, 0.8f, 0.8f);
+        glColor4f(0.8f, 0.8f, 0.8f, alphaTablero);
     else
-        glColor3f(0.3f, 0.3f, 0.3f);
+        glColor4f(0.3f, 0.3f, 0.3f, alphaTablero);
+
 
     glBegin(GL_POLYGON);
     glVertex2f(col, fila);
@@ -170,7 +175,15 @@ void Renderizador::dibujarPieza(Pieza* pieza, int fila, int col) {
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, textura);
 
-    glColor3f(1.0f, 1.0f, 1.0f); // blanco para no teñir la textura
+
+    if (alphaTablero < 0.7f)
+    {
+        glColor4f(1.0f, 1.0f, 1.0f, alphaTablero);  // Usar alpha actual
+    }
+    else {
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);  // Usar alpha actual
+    }
+
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 0.0f); glVertex2f(x, y);
     glTexCoord2f(1.0f, 0.0f); glVertex2f(x + 1, y);
@@ -595,10 +608,27 @@ void Renderizador::cargarTexturasPiezas() {
     if (estiloActual == EstiloVisual::BARAJA) {
         texturaFondo = cargarTextura("fondos/fondos_baraja.png");
     }
+    else if (estiloActual == EstiloVisual::NORMAL)//FONDO PARA MODO NORMAL
+    {
+        texturaFondo = cargarTextura("fondos/fondo_car.png");
+        //texturaFondo = cargarTextura("fondos/fondo_san.png");
+
+    }
     else {
         texturaFondo = 0; // No usar fondo en otros estilos
     }
 
+}
+
+
+//METODO PARA QUE EL TABLERO Y LAS PIEZAS APAREZCAN GRADUALMENTE
+void Renderizador::actualizarAlpha(int valor) {
+    if (alphaTablero < 0.7f) {
+        alphaTablero += 0.05f;
+        if (alphaTablero > 0.7f) alphaTablero = 0.7f;
+        glutPostRedisplay();
+        glutTimerFunc(30, actualizarAlpha, 0);  // Llama otra vez en 30ms
+    }
 }
 
 
