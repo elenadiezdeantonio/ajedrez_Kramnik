@@ -17,7 +17,7 @@ bool Rey::esMovimientoValido(Posicion destino, const Tablero& tablero) const {
 }
 int Rey::getValor() const
 {
-	return 1000; // Muy alto para evitar que el bot lo exponga
+	return 1000; 
 }
 
 

@@ -540,7 +540,7 @@ int Juego::evaluarMovimiento(const Posicion& origen, const Posicion& destino) {
 
     if (objetivo) {
         if (objetivo->getColor() == turnoActual) {
-            puntuacion = puntuacion - (2 * objetivo->getValor()); // castiga comerse piezas propias
+            puntuacion = puntuacion - 100000; // castiga comerse piezas propias
         }
         else {
             puntuacion += objetivo->getValor(); // premia capturar enemigas
@@ -793,7 +793,7 @@ void Juego::verificarTiempoAgotado() {
 
 
 
-//INTENTO DE AUMENTAR NIVEL BOT(IGUAL QUE MID PERO EVALUA LA POSIBLE RESPUESTA DEL OPONENTE)
+//NIVEL BOT ALTO (IGUAL QUE MID PERO EVALUA LA POSIBLE RESPUESTA DEL OPONENTE)
 
 
 int Juego::evaluarRespuestaDelOponente(Color oponente) {
@@ -840,6 +840,7 @@ int Juego::evaluarRespuestaDelOponente(Color oponente) {
     return mejorPuntaje;
 }
 
+// NIVEL DE BOT ALTO
 
 bool Juego::jugarTurnoBotHard() {
     std::srand(std::time(nullptr));

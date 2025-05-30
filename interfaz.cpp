@@ -150,7 +150,7 @@ void InterfazUsuario::mouseCallback(int button, int state, int x, int y) {
 void InterfazUsuario::keyboardCallback(unsigned char key, int x, int y) {
     // Si estamos en pantalla de coronación
     if (estadoActual == EstadoApp::CORONACION_PEON) {
-        juego->coronarPeonConTecla(key);  // Delega en la lógica de coronación del juego
+        juego->coronarPeonConTecla(key);  
         return;
     }
 

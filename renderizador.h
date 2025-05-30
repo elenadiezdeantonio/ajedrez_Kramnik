@@ -42,36 +42,15 @@ public:
     static void mostrarOpcionesCoronacion();
     static void mostrarSolicitudTablas(const std::string& mensajeEstado);
     static void cargarTexturasPiezas();
-
-    //JUGAR DE NUEVO
     static void mostrarPantallaJugarDeNuevo();
-
-
     static void mostrarSeleccionEstilo();
     static std::string obtenerNombreArchivo(const std::string& clave);
-
-
-    //
-
     static EstiloVisual estiloActual;
-
-
-
     static void setEstadoActual(EstadoApp nuevoEstado);
     static EstadoApp getEstadoActual();
-
-    //para poner fondo a baraja
     static GLuint texturaFondo;
-
-
-
-    static float alphaTablero;  // Transparencia de 0.0 a 1.0
-
-    //FUNCION QUE VA ACUTUALIZANDO LA TRANSPARENCIA SEGUN PASA EL TIEMPO(DE 0 A 0.6 SEGUNDOS)
+    static float alphaTablero;
     static void actualizarAlpha(int);
-
-
-
     static void dibujarTemporizador();
 
 };

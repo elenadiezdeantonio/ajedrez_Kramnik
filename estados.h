@@ -25,7 +25,6 @@ extern bool tipoVsMaquina;
 enum class DificultadBot {
     NOOB,
     MID,
-    //AÑADIDO
     HARD
 };
 

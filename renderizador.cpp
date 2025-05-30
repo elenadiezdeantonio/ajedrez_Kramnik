@@ -5,7 +5,7 @@
 
 
 
-//PARA FONDO
+
 GLuint Renderizador::texturaFondo = 0;
 
 
@@ -18,13 +18,12 @@ DificultadBot dificultadSeleccionada = DificultadBot::NOOB;
 std::map<std::string, GLuint> Renderizador::texturasPiezas;
 
 
-//AÑADIDO POR MI
 EstiloVisual Renderizador::estiloActual = EstiloVisual::NORMAL;
 
 float Renderizador::alphaTablero = 0.0f;
 Posicion Renderizador::casillaSeleccionada = Posicion(-1, -1);
 
-//
+
 
 
 
@@ -32,7 +31,6 @@ std::string Renderizador::mensajeEstado = "";
 
 
 
-//PARA TIEMPOS
 
 void dibujarTexto(float x, float y, const std::string& texto, void* fuente = GLUT_BITMAP_HELVETICA_18) {
     glRasterPos2f(x, y);
@@ -245,12 +243,13 @@ void Renderizador::dibujarPieza(Pieza* pieza, float fila, float col, float escal
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, textura);
 
+    //PERMITE QUE LAS PIEZAS APARENZCAN GRADUALMENTE, EN FUNCION DE alphaTablero
     if (alphaTablero < 0.7f)
     {
-        glColor4f(1.0f, 1.0f, 1.0f, alphaTablero);  // Usar alpha actual
+        glColor4f(1.0f, 1.0f, 1.0f, alphaTablero);  
     }
     else {
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);  // Usar alpha actual
+        glColor4f(1.0f, 1.0f, 1.0f, 0.7f);  
     }
 
     //SEA AÑADE UNA ESCALA PARA QUE SE VEAN LAS PIEZAS ELIMINADAS
@@ -267,6 +266,7 @@ void Renderizador::dibujarPieza(Pieza* pieza, float fila, float col, float escal
 
 
 void Renderizador::mostrarMenu() {
+
     //MENU DE INICIO DEL AJEDREZ
     glColor3f(0, 0, 0);
     glRasterPos2f(1.5f, 4.5f);
@@ -538,13 +538,13 @@ void Renderizador::iniciarJuegoSegunModo() {
 
     }
 
-
-    // Si es contra máquina y el turno actual es del bot (por ejemplo, siempre negras)
     if (tipoVsMaquina && juego->obtenerTurnoActual() == Color::NEGRO) {
         if (dificultadSeleccionada == DificultadBot::NOOB)
             juego->jugarTurnoBotNoob();
-        else
+        else if(dificultadSeleccionada == DificultadBot::MID)
             juego->jugarTurnoBotMid();
+        else
+            juego->jugarTurnoBotHard();
     }
 }
 
@@ -599,7 +599,6 @@ void Renderizador::mostrarSolicitudTablas(const std::string& mensajeEstado) {
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);  // Fondo blanco
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Establecer sistema de coordenadas ortográficas
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluOrtho2D(-1, 6, -1, 7);
@@ -620,7 +619,6 @@ void Renderizador::mostrarSolicitudTablas(const std::string& mensajeEstado) {
     for (char c : mensajeEstado)
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
 
-    // Botones: SÍ y NO
 
     float x_si1 = 1.2f, y_si1 = 3.0f;
     float x_si2 = 2.2f, y_si2 = 3.6f;
@@ -659,8 +657,6 @@ void Renderizador::mostrarSolicitudTablas(const std::string& mensajeEstado) {
 
 
 
-//AÑADIDO POR MI
-
 
 //CARGA PARA AÑADIR LOS NUEVOS DISEÑOS DE PIEZAS
 std::string Renderizador::obtenerNombreArchivo(const std::string& clave) {
@@ -684,7 +680,7 @@ std::string Renderizador::obtenerNombreArchivo(const std::string& clave) {
     else if (estiloActual == EstiloVisual::BARAJA) {
 
 
-        texturaFondo = cargarTextura("fondos/fondos_baraja.png"); // Ruta al fondo de la baraja
+        texturaFondo = cargarTextura("fondos/fondos_baraja.png"); 
 
 
         if (clave == "P_B") return "PEON_DE_COPAS.png";   // PEÓN blanco 
@@ -701,7 +697,7 @@ std::string Renderizador::obtenerNombreArchivo(const std::string& clave) {
         if (clave == "r_N") return "REY_DE_OROS.png";            //  REY negro
     }
 
-    return ""; // En caso de error
+    return ""; 
 }
 
 
@@ -729,7 +725,6 @@ void Renderizador::cargarTexturasPiezas() {
     else if (estiloActual == EstiloVisual::NORMAL)//FONDO PARA MODO NORMAL
     {
         texturaFondo = cargarTextura("fondos/fondo_car.png");
-        //texturaFondo = cargarTextura("fondos/fondo_san.png");
 
     }
     else {
